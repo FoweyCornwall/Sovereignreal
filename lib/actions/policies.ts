@@ -42,7 +42,7 @@ export async function getStore(): Promise<{ slots: StoreSlot[]; restockAt: strin
   return {
     restockAt: data[0]?.restock_at ?? new Date().toISOString(),
     slots: data.map((row) => ({
-      position: row.position,
+      slotPosition: row.slot_position,
       id: row.policy_id,
       key: row.policy_id,
       title: row.title,
@@ -59,7 +59,7 @@ export async function getStore(): Promise<{ slots: StoreSlot[]; restockAt: strin
 }
 
 export async function enactStorePolicy(
-  position: number,
+  slotPosition: number,
   expectedPolicyId: string
 ): Promise<EnactPolicyResult> {
   const supabase = await createClient();
@@ -67,7 +67,7 @@ export async function enactStorePolicy(
 
   const { data, error } = await supabase.rpc("enact_store_policy", {
     p_country_id: countryId,
-    p_position: position,
+    p_position: slotPosition,
     p_expected_policy_id: expectedPolicyId,
   });
 

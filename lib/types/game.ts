@@ -39,7 +39,7 @@ export interface PolicyCard {
 // A store slot: a policy card plus its position in the shared global store
 // and remaining stock.
 export interface StoreSlot extends PolicyCard {
-  position: number;
+  slotPosition: number;
   quantity: number;
   initialQuantity: number;
 }

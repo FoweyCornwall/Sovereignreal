@@ -158,7 +158,7 @@ export interface Database {
       };
       store_slots: {
         Row: {
-          position: number;
+          slot_position: number;
           policy_id: string;
           quantity: number;
           initial_quantity: number;
@@ -166,7 +166,7 @@ export interface Database {
           last_decay_at: string;
         };
         Insert: {
-          position: number;
+          slot_position: number;
           policy_id: string;
           quantity?: number;
           initial_quantity?: number;
@@ -305,7 +305,7 @@ export interface Database {
       get_store: {
         Args: Record<string, never>;
         Returns: {
-          position: number;
+          slot_position: number;
           policy_id: string;
           title: string;
           description: string | null;

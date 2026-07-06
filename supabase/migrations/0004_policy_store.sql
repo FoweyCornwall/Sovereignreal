@@ -14,7 +14,7 @@ create table store_state (
 insert into store_state (id, restock_at) values (1, now());
 
 create table store_slots (
-  position smallint primary key,
+  slot_position smallint primary key,
   policy_id uuid not null references policy_library (id),
   quantity integer not null default 0,
   initial_quantity integer not null default 0,
@@ -114,9 +114,9 @@ begin
     v_max := case v_tier when 1 then 80 when 2 then 40 when 3 then 20 when 4 then 8 else 3 end;
     v_qty := v_min + floor(random() * (v_max - v_min + 1))::int;
 
-    insert into store_slots (position, policy_id, quantity, initial_quantity, rolled_at, last_decay_at)
+    insert into store_slots (slot_position, policy_id, quantity, initial_quantity, rolled_at, last_decay_at)
     values (v_position, v_policy_id, v_qty, v_qty, now(), now())
-    on conflict (position) do update set
+    on conflict (slot_position) do update set
       policy_id = excluded.policy_id,
       quantity = excluded.quantity,
       initial_quantity = excluded.initial_quantity,
@@ -142,7 +142,7 @@ declare
   v_tick int;
   v_decay int;
 begin
-  for v_slot in select position, last_decay_at from store_slots loop
+  for v_slot in select slot_position, last_decay_at from store_slots loop
     v_minutes := least(20, floor(extract(epoch from (now() - v_slot.last_decay_at)) / 60)::int);
     if v_minutes <= 0 then
       continue;
@@ -158,7 +158,7 @@ begin
     update store_slots
       set quantity = greatest(0, quantity - v_decay),
           last_decay_at = v_slot.last_decay_at + (v_minutes || ' minutes')::interval
-      where position = v_slot.position;
+      where slot_position = v_slot.slot_position;
   end loop;
 end;
 $$;
@@ -195,7 +195,7 @@ $$;
 
 create or replace function get_store()
 returns table (
-  position smallint,
+  slot_position smallint,
   policy_id uuid,
   title text,
   description text,
@@ -217,12 +217,12 @@ begin
 
   return query
     select
-      ss.position, ss.policy_id, pl.title, pl.description, pl.tier, pl.primary_sector,
+      ss.slot_position, ss.policy_id, pl.title, pl.description, pl.tier, pl.primary_sector,
       pl.stat_deltas, pl.base_cost, pl.duration_seconds, ss.quantity, ss.initial_quantity,
       (select restock_at from store_state where id = 1)
     from store_slots ss
     join policy_library pl on pl.id = ss.policy_id
-    order by ss.position;
+    order by ss.slot_position;
 end;
 $$;
 
@@ -308,7 +308,7 @@ begin
     return jsonb_build_object('ok', false, 'reason', 'QUEUE_FULL');
   end if;
 
-  select * into v_slot from store_slots where position = p_position for update;
+  select * into v_slot from store_slots where slot_position = p_position for update;
   if not found or v_slot.policy_id <> p_expected_policy_id then
     return jsonb_build_object('ok', false, 'reason', 'STALE_SLOT');
   end if;
@@ -342,7 +342,7 @@ begin
   end if;
 
   update countries set treasury = treasury - v_effective_cost where id = p_country_id;
-  update store_slots set quantity = quantity - 1 where position = p_position;
+  update store_slots set quantity = quantity - 1 where slot_position = p_position;
 
   insert into active_policies (country_id, policy_id, tier, cost_paid, stat_deltas, started_at, completes_at)
   values (

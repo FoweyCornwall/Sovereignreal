@@ -61,11 +61,11 @@ export function StoreGrid({
   function handleEnact(slot: StoreSlot) {
     setMessage(null);
     startTransition(async () => {
-      const result = await enactStorePolicy(slot.position, slot.id);
+      const result = await enactStorePolicy(slot.slotPosition, slot.id);
       if (result.ok) {
         setSlots((prev) =>
           prev.map((s) =>
-            s.position === slot.position ? { ...s, quantity: s.quantity - 1 } : s
+            s.slotPosition === slot.slotPosition ? { ...s, quantity: s.quantity - 1 } : s
           )
         );
         setMessage(`${result.activePolicy.title} enacted — countdown started.`);
@@ -110,7 +110,7 @@ export function StoreGrid({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {slots.map((slot) => (
           <PolicyCard
-            key={slot.position}
+            key={slot.slotPosition}
             slot={slot}
             gdp={gdp}
             onEnact={handleEnact}
