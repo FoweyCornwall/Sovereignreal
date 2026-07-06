@@ -10,6 +10,12 @@ create table bot_drift_state (
 );
 insert into bot_drift_state (id, last_drift_at) values (1, now());
 
+-- Internal bookkeeping only - no client (anon or authenticated) ever needs
+-- to touch this directly, only drift_bots_if_due() below (security definer,
+-- so it bypasses RLS as the table owner). RLS enabled with zero policies
+-- means it's fully unreachable via the client API.
+alter table bot_drift_state enable row level security;
+
 -- BOT_GDP_HARD_CAP = 8,000,000,000: comfortably inside Gold (starts at 1e9),
 -- safely under the Platinum threshold (1e10) - no bot can ever cross into
 -- Platinum regardless of how long the game runs. A small additive term
