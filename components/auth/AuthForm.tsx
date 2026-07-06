@@ -23,6 +23,23 @@ export function AuthForm({ mode, action }: AuthFormProps) {
         {isLogin ? "Sign in to Sovereign" : "Create your account"}
       </h1>
 
+      {!isLogin && (
+        <label className="flex flex-col gap-1 text-sm">
+          Username
+          <input
+            type="text"
+            name="username"
+            required
+            minLength={3}
+            maxLength={20}
+            pattern="[a-zA-Z0-9_]{3,20}"
+            title="3-20 characters: letters, numbers, or underscores"
+            autoComplete="username"
+            className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+          />
+        </label>
+      )}
+
       <label className="flex flex-col gap-1 text-sm">
         Email
         <input
@@ -30,7 +47,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           name="email"
           required
           autoComplete="email"
-          className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
         />
       </label>
 
@@ -42,7 +59,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           required
           minLength={6}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
         />
       </label>
 
@@ -53,7 +70,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
+        className="rounded-full bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
       >
         {pending ? "Please wait…" : isLogin ? "Sign in" : "Sign up"}
       </button>

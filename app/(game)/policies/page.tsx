@@ -1,8 +1,22 @@
-import { getHand } from "@/lib/actions/policies";
-import { PolicyHand } from "@/components/policies/PolicyHand";
+import { getStore } from "@/lib/actions/policies";
+import { getMutationShopItems } from "@/lib/actions/mutations";
+import { loadGameState } from "@/lib/game/loadGameState";
+import { PolicyMutationTabs } from "@/components/policies/PolicyMutationTabs";
 
 export default async function PoliciesPage() {
-  const hand = await getHand();
+  const [{ slots, restockAt }, mutationItems, { country }] = await Promise.all([
+    getStore(),
+    getMutationShopItems(),
+    loadGameState(),
+  ]);
 
-  return <PolicyHand initialHand={hand} />;
+  return (
+    <PolicyMutationTabs
+      slots={slots}
+      restockAt={restockAt}
+      mutationItems={mutationItems}
+      gdp={country.gdp}
+      credits={country.credits}
+    />
+  );
 }

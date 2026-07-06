@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { SECTORS, STARTING_TREASURY } from "@/lib/game/constants";
+import { SECTORS, STARTING_CREDITS, STARTING_TREASURY } from "@/lib/game/constants";
 import { redirect } from "next/navigation";
 
 export interface CreateCountryInput {
@@ -24,11 +24,18 @@ export async function createCountry(input: CreateCountryInput) {
     return { ok: false as const, reason: "NAME_REQUIRED" as const };
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", userData.user.id)
+    .maybeSingle();
+
   const { data: country, error: insertError } = await supabase
     .from("countries")
     .insert({
       user_id: userData.user.id,
       name: trimmedName,
+      username: profile?.username ?? null,
       flag_emoji: input.flagEmoji ?? null,
       flag_style: input.flagStyle ?? null,
       country_code: input.countryCode ?? null,
@@ -36,6 +43,7 @@ export async function createCountry(input: CreateCountryInput) {
       gdp_per_sec: 0,
       treasury: STARTING_TREASURY,
       treasury_regen_per_sec: 0.5,
+      credits: STARTING_CREDITS,
     })
     .select("id")
     .single();

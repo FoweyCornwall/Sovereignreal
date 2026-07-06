@@ -1,6 +1,7 @@
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatDelta, formatDuration } from "@/lib/game/format";
-import type { PolicyCard as PolicyCardType } from "@/lib/types/game";
+import { computeEffectiveCost } from "@/lib/game/store";
+import type { StoreSlot } from "@/lib/types/game";
 
 const TIER_COLOR: Record<number, string> = {
   1: "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
@@ -11,28 +12,33 @@ const TIER_COLOR: Record<number, string> = {
 };
 
 export function PolicyCard({
-  policy,
+  slot,
+  gdp,
   onEnact,
   pending,
 }: {
-  policy: PolicyCardType;
-  onEnact: (policyId: string) => void;
+  slot: StoreSlot;
+  gdp: number;
+  onEnact: (slot: StoreSlot) => void;
   pending: boolean;
 }) {
-  const deltaEntries = Object.entries(policy.statDeltas);
+  const deltaEntries = Object.entries(slot.statDeltas);
+  const effectiveCost = computeEffectiveCost(slot.baseCost, gdp);
+  const soldOut = slot.quantity <= 0;
+  const lowStock = !soldOut && slot.quantity <= slot.initialQuantity * 0.15;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4">
+    <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4">
       <div className="flex items-center justify-between">
-        <span className={`text-xs font-semibold rounded-full px-2 py-0.5 ${TIER_COLOR[policy.tier]}`}>
-          Tier {policy.tier}
+        <span className={`text-xs font-semibold rounded-full px-2 py-0.5 ${TIER_COLOR[slot.tier]}`}>
+          Tier {slot.tier}
         </span>
-        <span className="text-xs text-zinc-500">{SECTOR_LABELS[policy.primarySector]}</span>
+        <span className="text-xs text-zinc-500">{SECTOR_LABELS[slot.primarySector]}</span>
       </div>
 
-      <h3 className="font-semibold">{policy.title}</h3>
-      {policy.description && (
-        <p className="text-sm text-zinc-500">{policy.description}</p>
+      <h3 className="font-semibold">{slot.title}</h3>
+      {slot.description && (
+        <p className="text-sm text-zinc-500">{slot.description}</p>
       )}
 
       <ul className="text-sm flex flex-col gap-0.5">
@@ -47,17 +53,21 @@ export function PolicyCard({
       </ul>
 
       <div className="flex items-center justify-between text-sm text-zinc-500">
-        <span>Cost: {policy.baseCost.toFixed(3)}</span>
-        <span>{formatDuration(policy.durationSeconds)}</span>
+        <span>Cost: {effectiveCost.toFixed(3)}</span>
+        <span>{formatDuration(slot.durationSeconds)}</span>
       </div>
+
+      <p className={`text-xs ${soldOut ? "text-red-500" : lowStock ? "text-amber-500" : "text-zinc-500"}`}>
+        {soldOut ? "Sold Out" : `${slot.quantity} in stock`}
+      </p>
 
       <button
         type="button"
-        onClick={() => onEnact(policy.id)}
-        disabled={pending}
-        className="rounded-md bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
+        onClick={() => onEnact(slot)}
+        disabled={pending || soldOut}
+        className="rounded-full bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
       >
-        Enact
+        {soldOut ? "Sold Out" : "Enact"}
       </button>
     </div>
   );

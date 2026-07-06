@@ -1,8 +1,13 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { POLICY_HAND_SIZE, TIER_DRAW_WEIGHT, type Sector } from "@/lib/game/constants";
-import type { EnactPolicyResult, PolicyCard, StatDeltas } from "@/lib/types/game";
+import type { Sector } from "@/lib/game/constants";
+import type {
+  EnactPolicyResult,
+  RefreshStoreResult,
+  StatDeltas,
+  StoreSlot,
+} from "@/lib/types/game";
 import { redirect } from "next/navigation";
 
 async function requireCountryId(): Promise<{ countryId: string }> {
@@ -25,63 +30,45 @@ async function requireCountryId(): Promise<{ countryId: string }> {
   return { countryId: country.id };
 }
 
-function weightedSample<T extends { tier: number }>(pool: T[], count: number): T[] {
-  const remaining = [...pool];
-  const picked: T[] = [];
-
-  while (remaining.length > 0 && picked.length < count) {
-    const totalWeight = remaining.reduce(
-      (sum, item) => sum + (TIER_DRAW_WEIGHT[item.tier as 1 | 2 | 3 | 4 | 5] ?? 1),
-      0
-    );
-    let roll = Math.random() * totalWeight;
-    let index = 0;
-    for (; index < remaining.length; index++) {
-      roll -= TIER_DRAW_WEIGHT[remaining[index].tier as 1 | 2 | 3 | 4 | 5] ?? 1;
-      if (roll <= 0) break;
-    }
-    const chosenIndex = Math.min(index, remaining.length - 1);
-    picked.push(remaining[chosenIndex]);
-    remaining.splice(chosenIndex, 1);
-  }
-
-  return picked;
-}
-
-export async function getHand(): Promise<PolicyCard[]> {
+export async function getStore(): Promise<{ slots: StoreSlot[]; restockAt: string }> {
   const supabase = await createClient();
 
-  const { data: policies, error } = await supabase
-    .from("policy_library")
-    .select("id, key, title, description, tier, primary_sector, stat_deltas, base_cost, duration_seconds")
-    .eq("is_active", true);
+  const { data, error } = await supabase.rpc("get_store");
 
-  if (error || !policies) {
-    throw new Error(`Failed to load policy library: ${error?.message}`);
+  if (error || !data) {
+    throw new Error(`Failed to load store: ${error?.message}`);
   }
 
-  const hand = weightedSample(policies, POLICY_HAND_SIZE);
-
-  return hand.map((p) => ({
-    id: p.id,
-    key: p.key,
-    title: p.title,
-    description: p.description,
-    tier: p.tier,
-    primarySector: p.primary_sector as Sector,
-    statDeltas: p.stat_deltas as StatDeltas,
-    baseCost: p.base_cost,
-    durationSeconds: p.duration_seconds,
-  }));
+  return {
+    restockAt: data[0]?.restock_at ?? new Date().toISOString(),
+    slots: data.map((row) => ({
+      position: row.position,
+      id: row.policy_id,
+      key: row.policy_id,
+      title: row.title,
+      description: row.description,
+      tier: row.tier,
+      primarySector: row.primary_sector as Sector,
+      statDeltas: row.stat_deltas as StatDeltas,
+      baseCost: row.base_cost,
+      durationSeconds: row.duration_seconds,
+      quantity: row.quantity,
+      initialQuantity: row.initial_quantity,
+    })),
+  };
 }
 
-export async function enactPolicy(policyId: string): Promise<EnactPolicyResult> {
+export async function enactStorePolicy(
+  position: number,
+  expectedPolicyId: string
+): Promise<EnactPolicyResult> {
   const supabase = await createClient();
   const { countryId } = await requireCountryId();
 
-  const { data, error } = await supabase.rpc("enact_policy", {
+  const { data, error } = await supabase.rpc("enact_store_policy", {
     p_country_id: countryId,
-    p_policy_id: policyId,
+    p_position: position,
+    p_expected_policy_id: expectedPolicyId,
   });
 
   if (error) {
@@ -107,6 +94,13 @@ export async function enactPolicy(policyId: string): Promise<EnactPolicyResult> 
   if (!result.ok) {
     if (result.reason === "INSUFFICIENT_FUNDS") {
       return { ok: false, reason: "INSUFFICIENT_FUNDS", shortfall: result.shortfall ?? 0 };
+    }
+    if (
+      result.reason === "QUEUE_FULL" ||
+      result.reason === "SOLD_OUT" ||
+      result.reason === "STALE_SLOT"
+    ) {
+      return { ok: false, reason: result.reason };
     }
     return { ok: false, reason: "POLICY_NOT_FOUND" };
   }
@@ -134,4 +128,29 @@ export async function enactPolicy(policyId: string): Promise<EnactPolicyResult> 
       completesAt: ap.completes_at,
     },
   };
+}
+
+export async function refreshStore(): Promise<RefreshStoreResult> {
+  const supabase = await createClient();
+  const { countryId } = await requireCountryId();
+
+  const { data, error } = await supabase.rpc("refresh_store", {
+    p_country_id: countryId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to refresh store: ${error.message}`);
+  }
+
+  const result = data as { ok: boolean; reason?: string; shortfall?: number };
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      reason: "INSUFFICIENT_CREDITS",
+      shortfall: result.shortfall ?? 0,
+    };
+  }
+
+  return { ok: true };
 }

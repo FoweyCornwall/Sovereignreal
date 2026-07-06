@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Country, SectorState } from "@/lib/types/game";
+import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
 import type { Sector } from "@/lib/game/constants";
 import { redirect } from "next/navigation";
 
 function mapCountry(row: {
   id: string;
-  user_id: string;
+  user_id: string | null;
   name: string;
+  username: string | null;
   flag_emoji: string | null;
   flag_style: unknown;
   country_code: string | null;
@@ -14,12 +15,14 @@ function mapCountry(row: {
   gdp_per_sec: number;
   treasury: number;
   treasury_regen_per_sec: number;
+  credits: number;
   last_settled_at: string;
 }): Country {
   return {
     id: row.id,
     userId: row.user_id,
     name: row.name,
+    username: row.username,
     flagEmoji: row.flag_emoji,
     flagStyle: row.flag_style as Country["flagStyle"],
     countryCode: row.country_code,
@@ -27,6 +30,7 @@ function mapCountry(row: {
     gdpPerSec: row.gdp_per_sec,
     treasury: row.treasury,
     treasuryRegenPerSec: row.treasury_regen_per_sec,
+    credits: row.credits,
     lastSettledAt: row.last_settled_at,
   };
 }
@@ -38,6 +42,7 @@ function mapCountry(row: {
 export async function loadGameState(): Promise<{
   country: Country;
   sectors: SectorState[];
+  mutations: SectorMutation[];
 }> {
   const supabase = await createClient();
 
@@ -73,12 +78,27 @@ export async function loadGameState(): Promise<{
     throw new Error(`Failed to load sector state: ${sectorError?.message}`);
   }
 
+  const { data: mutationRows, error: mutationError } = await supabase
+    .from("sector_mutations")
+    .select("sector, rarity, multiplier, acquired_at")
+    .eq("country_id", existing.id);
+
+  if (mutationError) {
+    throw new Error(`Failed to load mutations: ${mutationError.message}`);
+  }
+
   return {
     country: mapCountry(settled),
     sectors: sectorRows.map((r) => ({
       sector: r.sector as Sector,
       score: r.score,
       previousScore: r.previous_score,
+    })),
+    mutations: (mutationRows ?? []).map((m) => ({
+      sector: m.sector as Sector,
+      rarity: m.rarity as SectorMutation["rarity"],
+      multiplier: m.multiplier,
+      acquiredAt: m.acquired_at,
     })),
   };
 }

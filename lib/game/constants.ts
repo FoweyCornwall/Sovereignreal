@@ -49,6 +49,7 @@ export const BASE_TREASURY_REGEN = 0.5;
 export const GDP_REGEN_FACTOR = 0.01;
 
 export const STARTING_TREASURY = 1000;
+export const STARTING_CREDITS = 20;
 
 export const TIERS = [1, 2, 3, 4, 5] as const;
 export type Tier = (typeof TIERS)[number];
@@ -70,12 +71,15 @@ export const TIER_DURATION_SECONDS: Record<Tier, { min: number; max: number }> =
   5: { min: 43200, max: 172800 }, // capped at 2 days
 };
 
+// Phase 2 rebalance: tiers 4-5 raised significantly (see
+// supabase/migrations/0005_tier_cost_rebalance.sql) so they're meaningfully
+// out of reach early-game, not just narrowly unaffordable. Tunable.
 export const TIER_COST_RANGE: Record<Tier, { min: number; max: number }> = {
   1: { min: 20, max: 60 },
   2: { min: 100, max: 300 },
   3: { min: 400, max: 900 },
-  4: { min: 1200, max: 3000 },
-  5: { min: 4000, max: 9000 },
+  4: { min: 6000, max: 15000 },
+  5: { min: 25000, max: 60000 },
 };
 
 // Defensive floor/ceiling on any single sector's score, applied at settle time.

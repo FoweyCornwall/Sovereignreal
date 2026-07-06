@@ -12,7 +12,7 @@ export function DeleteAndRestartButton() {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="rounded-md border border-red-600 text-red-600 dark:text-red-400 font-medium py-2 px-4"
+        className="rounded-full border border-red-600 text-red-600 dark:text-red-400 font-medium py-2 px-4"
       >
         Delete &amp; Restart Country
       </button>
@@ -20,7 +20,7 @@ export function DeleteAndRestartButton() {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-red-600 p-4">
+    <div className="flex flex-col gap-2 rounded-2xl border border-red-600 p-4">
       <p className="text-sm">
         This permanently wipes your GDP, treasury, sectors, and history, and
         returns you to Country Setup. This cannot be undone.
@@ -30,14 +30,14 @@ export function DeleteAndRestartButton() {
           type="button"
           disabled={pending}
           onClick={() => startTransition(() => deleteAndRestart())}
-          className="rounded-md bg-red-600 text-white font-medium py-2 px-4 disabled:opacity-50"
+          className="rounded-full bg-red-600 text-white font-medium py-2 px-4 disabled:opacity-50"
         >
           {pending ? "Deleting…" : "Yes, delete everything"}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-md border border-zinc-300 dark:border-zinc-700 py-2 px-4"
+          className="rounded-full border border-zinc-300 dark:border-zinc-700 py-2 px-4"
         >
           Cancel
         </button>

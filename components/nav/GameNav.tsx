@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: "🏛️" },
   { href: "/policies", label: "Policies", icon: "📜" },
   { href: "/queue", label: "Active", icon: "⏳" },
-  { href: "/leaderboard", label: "Ranks", icon: "🏆" },
+  { href: "/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/stats", label: "Stats", icon: "📈" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
 ] as const;
@@ -44,7 +44,7 @@ export function GameNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+              className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm ${
                 active
                   ? "bg-amber-500/10 text-amber-500"
                   : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900"
