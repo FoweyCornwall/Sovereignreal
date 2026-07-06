@@ -1,0 +1,84 @@
+import { createClient } from "@/lib/supabase/server";
+import type { Country, SectorState } from "@/lib/types/game";
+import type { Sector } from "@/lib/game/constants";
+import { redirect } from "next/navigation";
+
+function mapCountry(row: {
+  id: string;
+  user_id: string;
+  name: string;
+  flag_emoji: string | null;
+  flag_style: unknown;
+  country_code: string | null;
+  gdp: number;
+  gdp_per_sec: number;
+  treasury: number;
+  treasury_regen_per_sec: number;
+  last_settled_at: string;
+}): Country {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    flagEmoji: row.flag_emoji,
+    flagStyle: row.flag_style as Country["flagStyle"],
+    countryCode: row.country_code,
+    gdp: row.gdp,
+    gdpPerSec: row.gdp_per_sec,
+    treasury: row.treasury,
+    treasuryRegenPerSec: row.treasury_regen_per_sec,
+    lastSettledAt: row.last_settled_at,
+  };
+}
+
+// Loads the current user's country, settling any elapsed time/completed
+// policies first (lazy-settle - see settle_country() in 0001_init.sql).
+// Redirects to /setup if the user has no country yet, and to /login if
+// unauthenticated. Use this at the top of every authenticated game page.
+export async function loadGameState(): Promise<{
+  country: Country;
+  sectors: SectorState[];
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    redirect("/login");
+  }
+
+  const { data: existing } = await supabase
+    .from("countries")
+    .select("id")
+    .eq("user_id", userData.user.id)
+    .maybeSingle();
+
+  if (!existing) {
+    redirect("/setup");
+  }
+
+  const { data: settled, error: settleError } = await supabase.rpc(
+    "settle_country",
+    { p_country_id: existing.id }
+  );
+  if (settleError || !settled) {
+    throw new Error(`Failed to settle country: ${settleError?.message}`);
+  }
+
+  const { data: sectorRows, error: sectorError } = await supabase
+    .from("sector_state")
+    .select("sector, score, previous_score")
+    .eq("country_id", existing.id);
+
+  if (sectorError || !sectorRows) {
+    throw new Error(`Failed to load sector state: ${sectorError?.message}`);
+  }
+
+  return {
+    country: mapCountry(settled),
+    sectors: sectorRows.map((r) => ({
+      sector: r.sector as Sector,
+      score: r.score,
+      previousScore: r.previous_score,
+    })),
+  };
+}
