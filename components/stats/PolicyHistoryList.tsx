@@ -12,7 +12,7 @@ export function PolicyHistoryList({ entries }: { entries: PolicyHistoryEntry[] }
       {entries.map((entry) => (
         <div
           key={entry.id}
-          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md p-3 text-sm"
+          className="rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-3 text-sm"
         >
           <div className="flex items-center justify-between">
             <span className="font-medium">{entry.title}</span>

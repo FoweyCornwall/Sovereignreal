@@ -35,7 +35,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
             pattern="[a-zA-Z0-9_]{3,20}"
             title="3-20 characters: letters, numbers, or underscores"
             autoComplete="username"
-            className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+            className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
           />
         </label>
       )}
@@ -47,7 +47,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           name="email"
           required
           autoComplete="email"
-          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
         />
       </label>
 
@@ -59,7 +59,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           required
           minLength={6}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
         />
       </label>
 
@@ -70,7 +70,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
+        className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
       >
         {pending ? "Please wait…" : isLogin ? "Sign in" : "Sign up"}
       </button>

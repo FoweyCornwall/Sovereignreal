@@ -12,7 +12,7 @@ export function DeleteAndRestartButton() {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="rounded-full border border-red-600 text-red-600 dark:text-red-400 font-medium py-2 px-4"
+        className="rounded-xl border border-red-600 text-red-600 dark:text-red-400 font-medium py-2 px-4"
       >
         Delete &amp; Restart Country
       </button>
@@ -30,14 +30,14 @@ export function DeleteAndRestartButton() {
           type="button"
           disabled={pending}
           onClick={() => startTransition(() => deleteAndRestart())}
-          className="rounded-full bg-red-600 text-white font-medium py-2 px-4 disabled:opacity-50"
+          className="rounded-xl bg-red-600 text-white font-medium py-2 px-4 disabled:opacity-50"
         >
           {pending ? "Deleting…" : "Yes, delete everything"}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-full border border-zinc-300 dark:border-zinc-700 py-2 px-4"
+          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl py-2 px-4"
         >
           Cancel
         </button>

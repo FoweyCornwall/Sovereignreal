@@ -12,13 +12,13 @@ export function ThemeToggle() {
   const { preference, setPreference } = useTheme();
 
   return (
-    <div className="inline-flex rounded-full border border-zinc-200 dark:border-zinc-800 p-1">
+    <div className="inline-flex rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl p-1">
       {OPTIONS.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => setPreference(opt.value)}
-          className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-3 py-1 text-sm font-medium transition-colors ${
             preference === opt.value
               ? "bg-amber-500 text-black"
               : "text-zinc-500"

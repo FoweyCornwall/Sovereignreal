@@ -26,11 +26,11 @@ export function PolicyMutationTabs({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex rounded-full border border-zinc-200 dark:border-zinc-800 p-1 w-fit">
+      <div className="flex rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl p-1 w-fit">
         <button
           type="button"
           onClick={() => setTab("store")}
-          className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
             tab === "store" ? "bg-amber-500 text-black" : "text-zinc-500"
           }`}
         >
@@ -39,7 +39,7 @@ export function PolicyMutationTabs({
         <button
           type="button"
           onClick={() => setTab("mutations")}
-          className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
             tab === "mutations" ? "bg-amber-500 text-black" : "text-zinc-500"
           }`}
         >

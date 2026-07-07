@@ -31,7 +31,7 @@ export function SectorCard({
 
   if (!mutation) {
     return (
-      <div className="flex items-center justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md px-4 py-3">
+      <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm px-4 py-3">
         <span className="text-sm font-medium">{SECTOR_LABELS[state.sector]}</span>
         <div className="flex items-center gap-2">
           <span className="tabular-nums text-sm">{state.score.toFixed(3)}</span>

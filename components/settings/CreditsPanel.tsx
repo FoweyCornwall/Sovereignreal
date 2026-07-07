@@ -24,7 +24,7 @@ export function CreditsPanel({ credits }: { credits: number }) {
             type="button"
             onClick={() => handleBuy(pack.key)}
             disabled={pending}
-            className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md px-4 py-2 text-sm disabled:opacity-50"
+            className="flex items-center justify-between rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm px-4 py-2 text-sm disabled:opacity-50"
           >
             <span>{pack.label}</span>
             <span className="font-medium">${(pack.priceCents / 100).toFixed(2)}</span>

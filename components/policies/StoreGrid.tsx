@@ -97,7 +97,7 @@ export function StoreGrid({
           type="button"
           onClick={handleRefreshStore}
           disabled={pending || credits < STORE_REFRESH_COST_CREDITS}
-          className="text-sm rounded-full border border-zinc-300 dark:border-zinc-700 px-3 py-1.5 disabled:opacity-50"
+          className="text-sm rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-1.5 disabled:opacity-50"
         >
           Refresh ({STORE_REFRESH_COST_CREDITS} credits)
         </button>

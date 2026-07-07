@@ -65,7 +65,7 @@ export function CountrySetupForm() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+      <div className="flex rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl overflow-hidden">
         <button
           type="button"
           onClick={() => setMode("real")}
@@ -93,9 +93,9 @@ export function CountrySetupForm() {
             placeholder="Search countries…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm"
+            className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2 text-sm"
           />
-          <div className="max-h-72 overflow-y-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md divide-y divide-zinc-100 dark:divide-zinc-900">
+          <div className="max-h-72 overflow-y-auto rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900">
             {filteredCountries.map((c) => (
               <button
                 key={c.iso2}
@@ -120,7 +120,7 @@ export function CountrySetupForm() {
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               maxLength={40}
-              className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2"
+              className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
             />
           </label>
 
@@ -135,7 +135,7 @@ export function CountrySetupForm() {
                   className={`text-xl rounded-full border px-2 py-1 ${
                     customEmoji === emoji
                       ? "border-amber-500"
-                      : "border-zinc-300 dark:border-zinc-700"
+                      : "border-black/10 dark:border-white/10"
                   }`}
                 >
                   {emoji}
@@ -181,7 +181,7 @@ export function CountrySetupForm() {
         type="button"
         onClick={handleSubmit}
         disabled={pending}
-        className="rounded-full bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
+        className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
       >
         {pending ? "Founding your nation…" : "Found Nation"}
       </button>

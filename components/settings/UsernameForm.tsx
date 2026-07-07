@@ -34,12 +34,12 @@ export function UsernameForm({ currentUsername }: { currentUsername: string | nu
           onChange={(e) => setValue(e.target.value)}
           minLength={3}
           maxLength={20}
-          className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm"
+          className="flex-1 rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2 text-sm"
         />
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-amber-500 text-black font-medium px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-xl bg-amber-500 text-black font-medium px-4 py-2 text-sm shadow-sm shadow-amber-500/20 disabled:opacity-50"
         >
           Save
         </button>

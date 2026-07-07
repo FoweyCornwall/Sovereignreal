@@ -52,7 +52,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
           return (
             <div
               key={item.id}
-              className="flex flex-col gap-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-4"
             >
               <h3 className="font-semibold">{item.title}</h3>
               {item.description && (
@@ -70,7 +70,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
                 type="button"
                 onClick={() => handleBuy(item)}
                 disabled={pending}
-                className="rounded-full bg-amber-500 text-black font-medium py-2 disabled:opacity-50"
+                className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
               >
                 Activate
               </button>
