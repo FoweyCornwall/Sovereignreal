@@ -61,7 +61,7 @@ export function LeaderboardTable({
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Leaderboard</h1>
 
-      <div className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900 overflow-hidden">
+      <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900 overflow-hidden">
         {entries.map((entry) => (
           <Row key={entry.countryId} entry={entry} isMe={entry.countryId === myCountryId} />
         ))}

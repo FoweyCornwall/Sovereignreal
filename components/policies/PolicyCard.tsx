@@ -32,7 +32,7 @@ export function PolicyCard({
   const lowStock = !soldOut && slot.quantity <= slot.initialQuantity * 0.15;
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-4">
+    <div className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
       <div className="flex items-center justify-between">
         <span className={`text-xs font-semibold rounded-full px-2 py-0.5 ${TIER_COLOR[slot.tier]}`}>
           Tier {slot.tier}

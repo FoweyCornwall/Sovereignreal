@@ -26,7 +26,7 @@ export function PolicyMutationTabs({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl p-1 w-fit">
+      <div className="flex rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 p-1 w-fit">
         <button
           type="button"
           onClick={() => setTab("store")}

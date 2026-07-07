@@ -35,7 +35,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
             pattern="[a-zA-Z0-9_]{3,20}"
             title="3-20 characters: letters, numbers, or underscores"
             autoComplete="username"
-            className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
+            className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
           />
         </label>
       )}
@@ -47,7 +47,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           name="email"
           required
           autoComplete="email"
-          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
+          className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
         />
       </label>
 
@@ -59,7 +59,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
           required
           minLength={6}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
+          className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
         />
       </label>
 

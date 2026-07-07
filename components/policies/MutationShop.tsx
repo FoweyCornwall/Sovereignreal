@@ -52,7 +52,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
           return (
             <div
               key={item.id}
-              className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4"
             >
               <h3 className="font-semibold">{item.title}</h3>
               {item.description && (

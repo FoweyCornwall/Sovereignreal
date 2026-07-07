@@ -18,7 +18,7 @@ export function GameNav() {
   return (
     <>
       {/* Mobile: bottom tab bar */}
-      <nav className="sm:hidden fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-white/[0.08] backdrop-blur-xl flex z-10">
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-900 flex z-10">
         {NAV_ITEMS.map((item) => {
           const active = pathname?.startsWith(item.href);
           return (
@@ -37,7 +37,7 @@ export function GameNav() {
       </nav>
 
       {/* Desktop: side nav */}
-      <nav className="hidden sm:flex flex-col gap-1 w-48 shrink-0 border-r border-zinc-200 dark:border-white/10 p-4">
+      <nav className="hidden sm:flex flex-col gap-1 w-48 shrink-0 border-r border-zinc-200 dark:border-white/5 p-4">
         {NAV_ITEMS.map((item) => {
           const active = pathname?.startsWith(item.href);
           return (

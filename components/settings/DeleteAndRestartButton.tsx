@@ -37,7 +37,7 @@ export function DeleteAndRestartButton() {
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl py-2 px-4"
+          className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 py-2 px-4"
         >
           Cancel
         </button>

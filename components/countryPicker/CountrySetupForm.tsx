@@ -65,7 +65,7 @@ export function CountrySetupForm() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl overflow-hidden">
+      <div className="flex rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
         <button
           type="button"
           onClick={() => setMode("real")}
@@ -93,9 +93,9 @@ export function CountrySetupForm() {
             placeholder="Search countries…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2 text-sm"
+            className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-2 text-sm"
           />
-          <div className="max-h-72 overflow-y-auto rounded-2xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900">
+          <div className="max-h-72 overflow-y-auto rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900">
             {filteredCountries.map((c) => (
               <button
                 key={c.iso2}
@@ -120,7 +120,7 @@ export function CountrySetupForm() {
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               maxLength={40}
-              className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl px-3 py-2"
+              className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-2"
             />
           </label>
 

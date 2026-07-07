@@ -39,7 +39,7 @@ export function DashboardView({
         </div>
       </header>
 
-      <div className="rounded-2xl border border-amber-500/20 bg-zinc-900 text-white dark:bg-white/[0.08] dark:backdrop-blur-xl shadow-sm p-5">
+      <div className="rounded-2xl border border-amber-500/20 bg-zinc-900 text-white shadow-sm p-5">
         <p className="text-xs uppercase tracking-wide text-zinc-400">Gross Domestic Product</p>
         <p className="text-3xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
         <p className="text-sm text-zinc-400">
@@ -49,7 +49,7 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-5">
+        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Treasury</p>
           <p className="text-2xl font-semibold tabular-nums">
             {formatWithCommas(treasury)}
@@ -59,7 +59,7 @@ export function DashboardView({
           </p>
         </div>
 
-        <div className="rounded-xl border border-black/5 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.08] backdrop-blur-xl shadow-sm p-5">
+        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
           <p className="text-2xl font-semibold tabular-nums">
             {formatWithCommas(country.credits)}
