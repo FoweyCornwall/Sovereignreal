@@ -39,29 +39,29 @@ export function DashboardView({
         </div>
       </header>
 
-      <div className="rounded-2xl border border-amber-500/20 bg-zinc-900 text-white shadow-sm p-5">
-        <p className="text-xs uppercase tracking-wide text-zinc-400">Gross Domestic Product</p>
-        <p className="text-3xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
-        <p className="text-sm text-zinc-400">
-          {country.gdpPerSec >= 0 ? "+" : ""}
-          {formatRateWithCommas(country.gdpPerSec)} / sec
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Treasury</p>
-          <p className="text-2xl font-semibold tabular-nums">
-            {formatWithCommas(treasury)}
-          </p>
-          <p className="text-sm text-zinc-500">
-            +{formatRateWithCommas(country.treasuryRegenPerSec)} / sec
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="rounded-xl border border-amber-500/20 bg-zinc-900 text-white shadow-sm p-4">
+          <p className="text-xs uppercase tracking-wide text-zinc-400">GDP</p>
+          <p className="text-xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
+          <p className="text-xs text-zinc-400">
+            {country.gdpPerSec >= 0 ? "+" : ""}
+            {formatRateWithCommas(country.gdpPerSec)}/s
           </p>
         </div>
 
-        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5">
+        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
+          <p className="text-xs uppercase tracking-wide text-zinc-500">Treasury</p>
+          <p className="text-xl font-semibold tabular-nums">
+            {formatWithCommas(treasury)}
+          </p>
+          <p className="text-xs text-zinc-500">
+            +{formatRateWithCommas(country.treasuryRegenPerSec)}/s
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
-          <p className="text-2xl font-semibold tabular-nums">
+          <p className="text-xl font-semibold tabular-nums">
             {formatWithCommas(country.credits)}
           </p>
         </div>
@@ -71,7 +71,7 @@ export function DashboardView({
         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
           Sectors
         </h2>
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {sectors.map((s) => (
             <SectorCard key={s.sector} state={s} mutation={mutationBySector.get(s.sector)} />
           ))}

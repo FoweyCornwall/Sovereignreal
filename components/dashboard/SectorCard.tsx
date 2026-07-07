@@ -31,9 +31,9 @@ export function SectorCard({
 
   if (!mutation) {
     return (
-      <div className="flex items-center justify-between rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm px-4 py-3">
-        <span className="text-sm font-medium">{SECTOR_LABELS[state.sector]}</span>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-1 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm px-3 py-2.5">
+        <span className="text-sm font-medium truncate">{SECTOR_LABELS[state.sector]}</span>
+        <div className="flex items-center justify-between">
           <span className="tabular-nums text-sm">{state.score.toFixed(3)}</span>
           <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
         </div>
@@ -48,7 +48,9 @@ export function SectorCard({
 
   return (
     <div
-      className="flex items-center justify-between rounded-2xl border-2 px-4 py-3 transition-shadow"
+      className={`flex flex-col gap-1 rounded-xl border-2 px-3 py-2.5 transition-shadow ${
+        isVibrant ? "mutation-rgb-glow" : ""
+      }`}
       style={{
         borderColor: isIridescent ? "transparent" : info.color,
         backgroundColor: isIridescent
@@ -60,11 +62,11 @@ export function SectorCard({
         boxShadow: isVibrant ? `0 0 16px 0 ${isIridescent ? "#a18cd1" : info.color}55` : undefined,
       }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold">{SECTOR_LABELS[state.sector]}</span>
+      <div className="flex items-center gap-1 min-w-0">
+        <span className="text-sm font-semibold truncate flex-1 min-w-0">{SECTOR_LABELS[state.sector]}</span>
         <MutationBadge mutation={mutation} />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
         <span className="tabular-nums text-sm font-semibold">{state.score.toFixed(3)}</span>
         <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
       </div>

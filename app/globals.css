@@ -42,8 +42,24 @@ body {
   animation: ambient-twinkle ease-in-out infinite;
 }
 
+@keyframes mutation-rgb-glow {
+  0% { box-shadow: 0 0 20px 3px rgba(255,0,64,0.6); }
+  14% { box-shadow: 0 0 20px 3px rgba(255,140,0,0.6); }
+  28% { box-shadow: 0 0 20px 3px rgba(255,230,0,0.6); }
+  42% { box-shadow: 0 0 20px 3px rgba(0,230,90,0.6); }
+  57% { box-shadow: 0 0 20px 3px rgba(0,210,255,0.6); }
+  71% { box-shadow: 0 0 20px 3px rgba(70,90,255,0.6); }
+  85% { box-shadow: 0 0 20px 3px rgba(220,0,255,0.6); }
+  100% { box-shadow: 0 0 20px 3px rgba(255,0,64,0.6); }
+}
+
+.mutation-rgb-glow {
+  animation: mutation-rgb-glow 5s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ambient-star {
+  .ambient-star,
+  .mutation-rgb-glow {
     animation: none;
   }
 }
