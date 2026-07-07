@@ -28,3 +28,22 @@ body {
 .dark body {
   background: radial-gradient(ellipse at top, #0d0d10 0%, #000000 60%);
 }
+
+@keyframes ambient-twinkle {
+  0%, 100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ambient-star {
+  animation: ambient-twinkle ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-star {
+    animation: none;
+  }
+}
