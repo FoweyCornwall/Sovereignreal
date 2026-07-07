@@ -1,5 +1,6 @@
-import { formatSigFigs } from "@/lib/game/format";
+import { formatWithCommas } from "@/lib/game/format";
 import { getRankTier } from "@/lib/game/rankTiers";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
 function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
@@ -13,12 +14,12 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
       }`}
     >
       <span className="w-8 text-sm tabular-nums text-zinc-500">#{entry.rank}</span>
-      <span
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-base shrink-0"
-        style={{ backgroundColor: entry.flagStyle?.bg }}
-      >
-        {entry.flagEmoji ?? "🏳️"}
-      </span>
+      <CountryFlag
+        countryCode={entry.countryCode}
+        flagEmoji={entry.flagEmoji}
+        flagStyle={entry.flagStyle}
+        name={entry.name}
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">
           {entry.username ? `@${entry.username}` : "Anonymous"}
@@ -26,7 +27,7 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
         <p className="text-xs text-zinc-500 truncate">{entry.name}</p>
       </div>
       <span
-        className="hidden sm:inline text-xs font-medium shrink-0"
+        className="hidden sm:inline-flex items-center gap-1 text-xs font-medium shrink-0"
         style={{
           color: isIridescent ? undefined : tier.color,
           backgroundImage: isIridescent
@@ -36,9 +37,10 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
           WebkitTextFillColor: isIridescent ? "transparent" : undefined,
         }}
       >
+        <span className="text-sm leading-none">{tier.icon}</span>
         {tier.name}
       </span>
-      <span className="text-sm tabular-nums shrink-0">{formatSigFigs(entry.gdp, 5)}</span>
+      <span className="text-sm tabular-nums shrink-0">{formatWithCommas(entry.gdp)}</span>
     </div>
   );
 }
@@ -59,7 +61,7 @@ export function LeaderboardTable({
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Leaderboard</h1>
 
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-900 overflow-hidden">
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md divide-y divide-zinc-100 dark:divide-zinc-900 overflow-hidden">
         {entries.map((entry) => (
           <Row key={entry.countryId} entry={entry} isMe={entry.countryId === myCountryId} />
         ))}

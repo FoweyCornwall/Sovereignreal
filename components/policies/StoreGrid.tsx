@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import { PolicyCard } from "@/components/policies/PolicyCard";
 import { getStore, enactStorePolicy, refreshStore } from "@/lib/actions/policies";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
-import { formatCountdown } from "@/lib/game/format";
+import { formatCountdown, formatWithCommas } from "@/lib/game/format";
 import { STORE_REFRESH_COST_CREDITS } from "@/lib/game/store";
-import type { StoreSlot } from "@/lib/types/game";
+import type { SectorState, StoreSlot } from "@/lib/types/game";
 
 export function StoreGrid({
   initialSlots,
   restockAt,
+  sectors,
   gdp,
   credits,
 }: {
   initialSlots: StoreSlot[];
   restockAt: string;
+  sectors: SectorState[];
   gdp: number;
   credits: number;
 }) {
@@ -71,7 +73,7 @@ export function StoreGrid({
         setMessage(`${result.activePolicy.title} enacted — countdown started.`);
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_FUNDS") {
-        setMessage(`Not enough treasury — you need ${result.shortfall.toFixed(3)} more.`);
+        setMessage(`Not enough treasury — you need ${formatWithCommas(result.shortfall)} more.`);
       } else if (result.reason === "QUEUE_FULL") {
         setMessage("You already have 5 things in progress — wait for one to finish.");
       } else if (result.reason === "SOLD_OUT") {
@@ -112,6 +114,7 @@ export function StoreGrid({
           <PolicyCard
             key={slot.slotPosition}
             slot={slot}
+            sectors={sectors}
             gdp={gdp}
             onEnact={handleEnact}
             pending={pending}

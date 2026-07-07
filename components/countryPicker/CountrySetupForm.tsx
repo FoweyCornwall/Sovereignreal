@@ -7,6 +7,7 @@ import {
   REAL_WORLD_COUNTRIES,
 } from "@/lib/game/countries";
 import { createCountry } from "@/lib/actions/setup";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 type Mode = "real" | "custom";
 
@@ -94,7 +95,7 @@ export function CountrySetupForm() {
             onChange={(e) => setSearch(e.target.value)}
             className="rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm"
           />
-          <div className="max-h-72 overflow-y-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-900">
+          <div className="max-h-72 overflow-y-auto rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md divide-y divide-zinc-100 dark:divide-zinc-900">
             {filteredCountries.map((c) => (
               <button
                 key={c.iso2}
@@ -104,7 +105,7 @@ export function CountrySetupForm() {
                   selectedIso === c.iso2 ? "bg-amber-500/10" : ""
                 }`}
               >
-                <span className="text-xl">{c.flagEmoji}</span>
+                <CountryFlag countryCode={c.iso2} flagEmoji={c.flagEmoji} name={c.name} />
                 {c.name}
               </button>
             ))}

@@ -13,7 +13,7 @@ export function ActiveQueueView({ policies }: { policies: ActivePolicy[] }) {
 
       {policies.length === 0 ? (
         <p className="text-sm text-zinc-500">
-          No policies in progress. Head to the Policy Deck to enact one.
+          No policies in progress. Head to the Store to enact one.
         </p>
       ) : (
         <div className="flex flex-col gap-3">

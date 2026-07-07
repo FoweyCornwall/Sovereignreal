@@ -1,12 +1,16 @@
-// Formats a non-negative number to a fixed number of significant figures,
-// e.g. formatSigFigs(1234.5, 5) -> "1234.5", formatSigFigs(0, 5) -> "0.0000".
-export function formatSigFigs(value: number, sigFigs = 5): string {
+// Whole-number, comma-grouped display for large monetary/GDP-scale values,
+// e.g. formatWithCommas(1234567.89) -> "1,234,568".
+export function formatWithCommas(value: number): string {
   if (!Number.isFinite(value)) return "0";
-  if (value === 0) return (0).toFixed(sigFigs - 1);
+  return Math.round(value).toLocaleString("en-US");
+}
 
-  const magnitude = Math.floor(Math.log10(Math.abs(value)));
-  const decimals = Math.max(sigFigs - magnitude - 1, 0);
-  return value.toFixed(decimals);
+// Same comma-grouping, but keeps a few decimal places - for per-second
+// rates, which are often well under 1 early game and would otherwise round
+// away to "0".
+export function formatRateWithCommas(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  return value.toLocaleString("en-US", { maximumFractionDigits: 4 });
 }
 
 export function formatDelta(value: number): string {

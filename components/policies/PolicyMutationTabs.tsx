@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { StoreGrid } from "@/components/policies/StoreGrid";
 import { MutationShop } from "@/components/policies/MutationShop";
-import type { MutationItem, StoreSlot } from "@/lib/types/game";
+import type { MutationItem, SectorState, StoreSlot } from "@/lib/types/game";
 
 type Tab = "store" | "mutations";
 
@@ -11,12 +11,14 @@ export function PolicyMutationTabs({
   slots,
   restockAt,
   mutationItems,
+  sectors,
   gdp,
   credits,
 }: {
   slots: StoreSlot[];
   restockAt: string;
   mutationItems: MutationItem[];
+  sectors: SectorState[];
   gdp: number;
   credits: number;
 }) {
@@ -46,7 +48,13 @@ export function PolicyMutationTabs({
       </div>
 
       {tab === "store" ? (
-        <StoreGrid initialSlots={slots} restockAt={restockAt} gdp={gdp} credits={credits} />
+        <StoreGrid
+          initialSlots={slots}
+          restockAt={restockAt}
+          sectors={sectors}
+          gdp={gdp}
+          credits={credits}
+        />
       ) : (
         <MutationShop items={mutationItems} gdp={gdp} />
       )}

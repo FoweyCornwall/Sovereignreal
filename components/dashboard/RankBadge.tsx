@@ -15,15 +15,7 @@ export function RankBadge({ gdp }: { gdp: number }) {
           : undefined,
       }}
     >
-      <span
-        className="h-2 w-2 rounded-full"
-        style={{
-          backgroundColor: isIridescent ? undefined : tier.color,
-          backgroundImage: isIridescent
-            ? "linear-gradient(90deg, #ff9a9e, #a18cd1, #8fd3f4)"
-            : undefined,
-        }}
-      />
+      <span className="text-sm leading-none">{tier.icon}</span>
       {tier.name}
     </span>
   );

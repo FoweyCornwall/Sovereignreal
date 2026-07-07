@@ -1,4 +1,4 @@
-import { GDP_SCALE, SECTOR_WEIGHTS, type Sector } from "@/lib/game/constants";
+import { GDP_SCALE, SECTOR_SCORE_CEILING, SECTOR_WEIGHTS, type Sector } from "@/lib/game/constants";
 import type { SectorState } from "@/lib/types/game";
 
 export type Trend = "up" | "down" | "flat";
@@ -19,6 +19,17 @@ export function interpolateValue(
 ): number {
   const elapsedSeconds = Math.max(0, (now - fetchedAt) / 1000);
   return baseValue + perSecondRate * elapsedSeconds;
+}
+
+// Mirrors settle_country()'s diminishing-returns step (0009_gameplay_rebalance.sql):
+// positive deltas shrink the closer a sector already is to the 100 ceiling,
+// so a policy's *relative* benefit depends on current sector state. Negative
+// deltas are unaffected. Used purely for display - the server is still the
+// only place this is actually applied.
+export function computeEffectiveDelta(baseDelta: number, currentScore: number): number {
+  if (baseDelta <= 0) return baseDelta;
+  const room = Math.max(0, 1 - currentScore / SECTOR_SCORE_CEILING);
+  return baseDelta * room;
 }
 
 export interface SectorContribution {

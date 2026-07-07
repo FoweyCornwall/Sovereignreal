@@ -4,7 +4,8 @@ import { useTickingValue } from "@/components/dashboard/useTickingValue";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { SectorCard } from "@/components/dashboard/SectorCard";
 import { RankBadge } from "@/components/dashboard/RankBadge";
-import { formatSigFigs } from "@/lib/game/format";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
 
 export function DashboardView({
@@ -25,12 +26,13 @@ export function DashboardView({
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-center gap-3">
-        <span
-          className="inline-flex h-12 w-12 items-center justify-center rounded-full text-2xl"
-          style={{ backgroundColor: country.flagStyle?.bg }}
-        >
-          {country.flagEmoji ?? "🏳️"}
-        </span>
+        <CountryFlag
+          countryCode={country.countryCode}
+          flagEmoji={country.flagEmoji}
+          flagStyle={country.flagStyle}
+          name={country.name}
+          size="md"
+        />
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-semibold">{country.name}</h1>
           <RankBadge gdp={country.gdp} />
@@ -38,28 +40,29 @@ export function DashboardView({
       </header>
 
       <div className="rounded-xl bg-zinc-900 text-white dark:bg-zinc-950 p-5">
-        <p className="text-3xl font-bold tabular-nums">{formatSigFigs(gdp, 5)}</p>
+        <p className="text-3xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
         <p className="text-sm text-zinc-400">
           {country.gdpPerSec >= 0 ? "+" : ""}
-          {country.gdpPerSec.toFixed(4)} / sec
+          {formatRateWithCommas(country.gdpPerSec)} / sec
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md p-5">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Treasury</p>
           <p className="text-2xl font-semibold tabular-nums">
-            {formatSigFigs(treasury, 5)}
+            {formatWithCommas(treasury)}
           </p>
           <p className="text-sm text-zinc-500">
-            +{country.treasuryRegenPerSec.toFixed(4)} / sec
+            +{formatRateWithCommas(country.treasuryRegenPerSec)} / sec
           </p>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-5">
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md p-5">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
-          <p className="text-2xl font-semibold tabular-nums">{country.credits}</p>
-          <p className="text-sm text-zinc-500">real-money only</p>
+          <p className="text-2xl font-semibold tabular-nums">
+            {formatWithCommas(country.credits)}
+          </p>
         </div>
       </div>
 

@@ -42,7 +42,11 @@ export const SECTOR_WEIGHTS: Record<Sector, number> = {
 };
 
 // gdp_per_sec = GDP_SCALE * sum(sector_score_i * weight_i)
-export const GDP_SCALE = 1000;
+// Rescaled 5x (1000->5000) alongside the sector cap dropping 500->100, so a
+// fully-maxed country produces roughly the same GDP/sec as before that
+// change - keeps existing rank-tier pacing intact rather than making high
+// ranks depend on landing mutations just to progress at a normal rate.
+export const GDP_SCALE = 5000;
 
 // treasury_regen_per_sec = BASE_TREASURY_REGEN + GDP_REGEN_FACTOR * gdp
 export const BASE_TREASURY_REGEN = 0.5;
@@ -71,20 +75,24 @@ export const TIER_DURATION_SECONDS: Record<Tier, { min: number; max: number }> =
   5: { min: 43200, max: 172800 }, // capped at 2 days
 };
 
-// Phase 2 rebalance: tiers 4-5 raised significantly (see
-// supabase/migrations/0005_tier_cost_rebalance.sql) so they're meaningfully
-// out of reach early-game, not just narrowly unaffordable. Tunable.
+// Phase 2 rebalance, twice over now (see 0005_tier_cost_rebalance.sql and
+// 0009_gameplay_rebalance.sql) - every tier meaningfully more expensive than
+// launch, tiers 4-5 especially so. Tunable.
 export const TIER_COST_RANGE: Record<Tier, { min: number; max: number }> = {
-  1: { min: 20, max: 60 },
-  2: { min: 100, max: 300 },
-  3: { min: 400, max: 900 },
-  4: { min: 6000, max: 15000 },
-  5: { min: 25000, max: 60000 },
+  1: { min: 40, max: 120 },
+  2: { min: 200, max: 600 },
+  3: { min: 800, max: 1800 },
+  4: { min: 10000, max: 25000 },
+  5: { min: 42000, max: 102000 },
 };
 
-// Defensive floor/ceiling on any single sector's score, applied at settle time.
+// Defensive floor/ceiling on any single sector's score, applied at settle
+// time. Ceiling dropped 500->100 so the sector index reads as a clean
+// percentage-like scale; policies apply progressively less of their raw
+// delta the closer a sector already is to the ceiling (see settle_country's
+// diminishing-returns step).
 export const SECTOR_SCORE_FLOOR = 0;
-export const SECTOR_SCORE_CEILING = 500;
+export const SECTOR_SCORE_CEILING = 100;
 
 // Hand size for the Policy Deck (Flow 3). Lower tiers drawn more often.
 export const POLICY_HAND_SIZE = 5;

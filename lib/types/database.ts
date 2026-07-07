@@ -335,6 +335,7 @@ export interface Database {
           username: string | null;
           flag_emoji: string | null;
           flag_style: Json | null;
+          country_code: string | null;
           gdp: number;
           rank: number;
         }[];

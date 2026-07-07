@@ -85,6 +85,7 @@ export interface LeaderboardEntry {
   username: string | null;
   flagEmoji: string | null;
   flagStyle: { bg: string; pattern?: string } | null;
+  countryCode: string | null;
   gdp: number;
   rank: number;
 }

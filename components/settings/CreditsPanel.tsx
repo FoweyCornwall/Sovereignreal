@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { CREDIT_PACKS } from "@/lib/billing/creditPacks";
 import { createCheckoutSession } from "@/lib/actions/billing";
+import { formatWithCommas } from "@/lib/game/format";
 
 export function CreditsPanel({ credits }: { credits: number }) {
   const [pending, startTransition] = useTransition();
@@ -14,7 +15,7 @@ export function CreditsPanel({ credits }: { credits: number }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm">
-        Balance: <span className="font-semibold tabular-nums">{credits}</span> credits
+        Balance: <span className="font-semibold tabular-nums">{formatWithCommas(credits)}</span> credits
       </p>
       <div className="flex flex-col gap-2">
         {CREDIT_PACKS.map((pack) => (
@@ -23,7 +24,7 @@ export function CreditsPanel({ credits }: { credits: number }) {
             type="button"
             onClick={() => handleBuy(pack.key)}
             disabled={pending}
-            className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-2 text-sm disabled:opacity-50"
+            className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md px-4 py-2 text-sm disabled:opacity-50"
           >
             <span>{pack.label}</span>
             <span className="font-medium">${(pack.priceCents / 100).toFixed(2)}</span>

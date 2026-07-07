@@ -2,7 +2,7 @@ import type { Tier } from "@/lib/game/constants";
 
 // Mirrored in SQL (supabase/migrations/0004_policy_store.sql) - keep in sync.
 export const STORE_SLOT_COUNT = 6;
-export const STORE_RESTOCK_SECONDS = 1200; // 20 minutes
+export const STORE_RESTOCK_SECONDS = 900; // 15 minutes
 export const STORE_REFRESH_COST_CREDITS = 5;
 
 // Scarcer at higher tiers. First-pass proposal, tunable.

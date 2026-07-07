@@ -2,7 +2,7 @@ import { MUTATION_RARITIES_INFO } from "@/lib/game/mutations";
 
 export function MutationOddsTable() {
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md overflow-hidden">
       <table className="w-full text-sm">
         <thead className="bg-zinc-50 dark:bg-zinc-900 text-zinc-500 text-xs uppercase">
           <tr>

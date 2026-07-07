@@ -2,7 +2,7 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { GdpHistoryPoint } from "@/lib/game/loadStats";
-import { formatSigFigs } from "@/lib/game/format";
+import { formatWithCommas } from "@/lib/game/format";
 
 export function GdpChart({ points }: { points: GdpHistoryPoint[] }) {
   if (points.length < 2) {
@@ -28,10 +28,10 @@ export function GdpChart({ points }: { points: GdpHistoryPoint[] }) {
             tickFormatter={(t) => new Date(t).toLocaleTimeString()}
             hide
           />
-          <YAxis tickFormatter={(v) => formatSigFigs(v, 3)} width={56} />
+          <YAxis tickFormatter={(v) => formatWithCommas(v)} width={80} />
           <Tooltip
             labelFormatter={(t) => new Date(t).toLocaleString()}
-            formatter={(v) => formatSigFigs(Number(v), 5)}
+            formatter={(v) => formatWithCommas(Number(v))}
           />
           <Line type="monotone" dataKey="gdp" stroke="#f59e0b" dot={false} strokeWidth={2} />
         </LineChart>

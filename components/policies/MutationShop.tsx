@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { computeEffectiveCost } from "@/lib/game/store";
-import { formatDuration } from "@/lib/game/format";
+import { formatDuration, formatWithCommas } from "@/lib/game/format";
 import { enactMutationItem } from "@/lib/actions/mutations";
 import { MutationOddsTable } from "@/components/policies/MutationOddsTable";
 import type { MutationItem } from "@/lib/types/game";
@@ -22,7 +22,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
         setMessage(`${item.title} activated.`);
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_FUNDS") {
-        setMessage(`Not enough treasury — you need ${result.shortfall.toFixed(3)} more.`);
+        setMessage(`Not enough treasury — you need ${formatWithCommas(result.shortfall)} more.`);
       } else if (result.reason === "QUEUE_FULL") {
         setMessage("You already have 5 things in progress — wait for one to finish.");
       } else {
@@ -52,7 +52,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
           return (
             <div
               key={item.id}
-              className="flex flex-col gap-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900/40 dark:backdrop-blur-md p-4"
             >
               <h3 className="font-semibold">{item.title}</h3>
               {item.description && (
@@ -63,7 +63,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
                 {item.targetSectors.map((s) => SECTOR_LABELS[s]).join(", ")}
               </p>
               <div className="flex items-center justify-between text-sm text-zinc-500">
-                <span>Cost: {effectiveCost.toFixed(3)}</span>
+                <span>Cost: {formatWithCommas(effectiveCost)}</span>
                 <span>{formatDuration(item.durationSeconds)}</span>
               </div>
               <button
