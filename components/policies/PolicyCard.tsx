@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatDelta, formatDuration, formatWithCommas } from "@/lib/game/format";
 import {
@@ -46,17 +46,27 @@ export function PolicyCard({
   const posStack = Math.pow(STACK_POSITIVE_FACTOR, stackCount);
   const negStack = Math.pow(STACK_NEGATIVE_FACTOR, stackCount);
 
-  // Very short-lived flag (~800ms) used to render the pulse + fly-up chip
-  // when the player clicks Enact. Bumped by a monotonically-increasing key
-  // so React actually re-mounts the chip on every click (not just the first).
+  // Enact click state: enactedTick is monotonically increasing so a fresh
+  // chip <span> re-mounts (via key) every click. The button's pulse animation
+  // is replayed independently by removing then re-adding the class via a ref
+  // (React alone doesn't restart a CSS keyframe animation when the same
+  // class stays on the element).
   const [enactedTick, setEnactedTick] = useState(0);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const primaryDelta = slot.statDeltas[slot.primarySector];
+
+  useEffect(() => {
+    if (enactedTick === 0 || !buttonRef.current) return;
+    const el = buttonRef.current;
+    el.classList.remove("enact-button-pulse");
+    // Force a reflow so removing + adding the class actually restarts the
+    // animation - browsers batch DOM writes otherwise.
+    void el.offsetWidth;
+    el.classList.add("enact-button-pulse");
+  }, [enactedTick]);
 
   function handleClick() {
     setEnactedTick((t) => t + 1);
-    // Reset well after the CSS animation completes (~800ms) so the chip is
-    // removed and re-mount cleanly next time.
-    setTimeout(() => setEnactedTick((t) => t), 900);
     onEnact(slot);
   }
 
@@ -120,13 +130,11 @@ export function PolicyCard({
           </span>
         )}
         <button
-          key={enactedTick}
+          ref={buttonRef}
           type="button"
           onClick={handleClick}
           disabled={pending || soldOut}
-          className={`w-full rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50 ${
-            enactedTick > 0 ? "enact-button-pulse" : ""
-          }`}
+          className="w-full rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
         >
           {soldOut ? "Sold Out" : "Enact"}
         </button>

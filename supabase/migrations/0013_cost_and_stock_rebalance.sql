@@ -17,7 +17,7 @@ returns void
 language plpgsql
 as $$
 declare
-  v_position smallint;
+  v_slot_position smallint;
   v_tier smallint;
   v_policy_id uuid;
   v_min int;
@@ -25,7 +25,7 @@ declare
   v_qty int;
   v_chosen uuid[] := '{}';
 begin
-  for v_position in 1..6 loop
+  for v_slot_position in 1..6 loop
     v_tier := pick_weighted_tier();
 
     select id into v_policy_id
@@ -48,9 +48,9 @@ begin
     v_max := case v_tier when 1 then 5000 when 2 then 2500 when 3 then 1000 when 4 then 300 else 100 end;
     v_qty := v_min + floor(random() * (v_max - v_min + 1))::int;
 
-    insert into store_slots (position, policy_id, quantity, initial_quantity, rolled_at, last_decay_at)
-    values (v_position, v_policy_id, v_qty, v_qty, now(), now())
-    on conflict (position) do update set
+    insert into store_slots (slot_position, policy_id, quantity, initial_quantity, rolled_at, last_decay_at)
+    values (v_slot_position, v_policy_id, v_qty, v_qty, now(), now())
+    on conflict (slot_position) do update set
       policy_id = excluded.policy_id,
       quantity = excluded.quantity,
       initial_quantity = excluded.initial_quantity,
