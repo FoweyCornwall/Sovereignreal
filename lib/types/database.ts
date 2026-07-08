@@ -15,9 +15,9 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; username: string | null; created_at: string };
-        Insert: { id: string; username?: string | null; created_at?: string };
-        Update: { id?: string; username?: string | null; created_at?: string };
+        Row: { id: string; username: string | null; credits: number; created_at: string };
+        Insert: { id: string; username?: string | null; credits?: number; created_at?: string };
+        Update: { id?: string; username?: string | null; credits?: number; created_at?: string };
         Relationships: [];
       };
       countries: {
@@ -33,7 +33,6 @@ export interface Database {
           gdp_per_sec: number;
           treasury: number;
           treasury_regen_per_sec: number;
-          credits: number;
           is_bot: boolean;
           last_settled_at: string;
           created_at: string;
@@ -50,7 +49,6 @@ export interface Database {
           gdp_per_sec?: number;
           treasury?: number;
           treasury_regen_per_sec?: number;
-          credits?: number;
           is_bot?: boolean;
           last_settled_at?: string;
           created_at?: string;

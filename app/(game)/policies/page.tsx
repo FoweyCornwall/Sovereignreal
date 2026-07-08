@@ -2,22 +2,39 @@ import { getStore } from "@/lib/actions/policies";
 import { getMutationShopItems } from "@/lib/actions/mutations";
 import { loadGameState } from "@/lib/game/loadGameState";
 import { PolicyMutationTabs } from "@/components/policies/PolicyMutationTabs";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PoliciesPage() {
-  const [{ slots, restockAt }, mutationItems, { country, sectors }] = await Promise.all([
+  const supabase = await createClient();
+
+  const [{ slots, restockAt }, mutationItems, gameState] = await Promise.all([
     getStore(),
     getMutationShopItems(),
     loadGameState(),
   ]);
+
+  // Stack counts: how many times this country has ever enacted each policy in
+  // the store. Powers the "derived benefit" display on each card so the shown
+  // impact reflects the NEXT enactment's stacked deltas, not the base card.
+  const { data: stackRows } = await supabase
+    .from("active_policies")
+    .select("policy_id")
+    .eq("country_id", gameState.country.id);
+
+  const stackCounts: Record<string, number> = {};
+  for (const row of stackRows ?? []) {
+    stackCounts[row.policy_id] = (stackCounts[row.policy_id] ?? 0) + 1;
+  }
 
   return (
     <PolicyMutationTabs
       slots={slots}
       restockAt={restockAt}
       mutationItems={mutationItems}
-      sectors={sectors}
-      gdp={country.gdp}
-      credits={country.credits}
+      sectors={gameState.sectors}
+      gdp={gameState.country.gdp}
+      credits={gameState.credits}
+      stackCounts={stackCounts}
     />
   );
 }

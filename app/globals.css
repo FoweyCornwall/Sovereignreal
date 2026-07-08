@@ -12,6 +12,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brand-300: #b8e2f7;
+  --color-brand-400: #a1d8f4;
+  --color-brand-500: #89cff0;
+  --color-brand-600: #6fb8dc;
+  --color-brand-950: #052e42;
 }
 
 :root.dark {

@@ -15,23 +15,47 @@ const BOT_COUNT = 80;
 // Hard cap enforced again in drift_bots_if_due() (8,000,000,000) - seeding
 // under that with headroom so drift has room to move bots without any of
 // them starting past the cap.
+// Spread across all rank tiers now that the hard cap is removed - bots
+// look like a plausible mixed leaderboard, not everyone stuck under Gold.
 const GDP_BUCKETS: { weight: number; min: number; max: number }[] = [
-  { weight: 0.4, min: 0, max: 100_000_000 }, // Bronze
-  { weight: 0.3, min: 100_000_000, max: 1_000_000_000 }, // Silver
-  { weight: 0.25, min: 1_000_000_000, max: 3_000_000_000 }, // Gold (low)
-  { weight: 0.05, min: 3_000_000_000, max: 7_000_000_000 }, // Gold (high, near cap)
+  { weight: 0.30, min: 0, max: 100_000_000 }, // Bronze
+  { weight: 0.25, min: 100_000_000, max: 1_000_000_000 }, // Silver
+  { weight: 0.20, min: 1_000_000_000, max: 10_000_000_000 }, // Gold
+  { weight: 0.15, min: 10_000_000_000, max: 100_000_000_000 }, // Platinum
+  { weight: 0.07, min: 100_000_000_000, max: 1_000_000_000_000 }, // Diamond
+  { weight: 0.025, min: 1_000_000_000_000, max: 10_000_000_000_000 }, // Master
+  { weight: 0.005, min: 10_000_000_000_000, max: 100_000_000_000_000 }, // Grandmaster
 ];
 
-const USERNAME_PREFIXES = [
-  "Iron", "Golden", "Silver", "Crimson", "Northern", "Southern", "Eastern",
-  "Western", "Grand", "High", "Free", "United", "New", "Old", "Royal",
-  "Silent", "Swift", "Bold", "Prime", "Astral",
+// Human-shaped usernames: mostly a short handle + a small number, sometimes
+// just a handle, sometimes with a common separator. No consistent prefix +
+// noun + 3-digit-suffix pattern that visibly reads as bot-generated.
+const HANDLE_PARTS_A = [
+  "alex", "sam", "jordan", "riley", "casey", "avery", "morgan", "taylor",
+  "quinn", "reese", "kai", "leo", "milo", "arlo", "juno", "nova", "sage",
+  "wren", "eli", "finn", "mira", "iris", "cal", "ren", "noor", "sol",
+  "yuki", "aki", "tomo", "yuri", "dima", "kira", "luca", "theo", "ivo",
+  "nils", "lena", "anya", "elin", "maya", "zara", "aria", "iona", "mateo",
+  "dax", "jax", "ash", "rue", "cora", "ezra",
 ];
-const USERNAME_NOUNS = [
-  "Eagle", "Falcon", "Wolf", "Lion", "Bear", "Hawk", "Tiger", "Fox",
-  "Stag", "Raven", "Dragon", "Phoenix", "Panther", "Cobra", "Comet",
-  "Voyager", "Pioneer", "Sentinel", "Warden", "Nomad",
+const HANDLE_PARTS_B = [
+  "", "", "", "", "", // blanks so ~40% are single-part
+  "wave", "sky", "star", "moon", "sun", "river", "storm", "rain",
+  "vale", "peak", "glass", "iron", "pine", "oak", "reed", "haze",
 ];
+const SEPARATORS = ["", "", "", "", "_", ".", "-"];
+
+function randomUsername(): string {
+  const a = HANDLE_PARTS_A[Math.floor(Math.random() * HANDLE_PARTS_A.length)];
+  const b = HANDLE_PARTS_B[Math.floor(Math.random() * HANDLE_PARTS_B.length)];
+  const sep = SEPARATORS[Math.floor(Math.random() * SEPARATORS.length)];
+  const numChance = Math.random();
+  let num = "";
+  if (numChance < 0.35) num = String(Math.floor(Math.random() * 99) + 1);
+  else if (numChance < 0.55) num = String(Math.floor(Math.random() * 9000) + 1000);
+  const core = b ? `${a}${sep}${b}` : a;
+  return `${core}${num}`;
+}
 
 function pickWeightedBucket() {
   const roll = Math.random();
@@ -41,13 +65,6 @@ function pickWeightedBucket() {
     if (roll <= cumulative) return bucket;
   }
   return GDP_BUCKETS[0];
-}
-
-function randomUsername(index: number): string {
-  const prefix = USERNAME_PREFIXES[index % USERNAME_PREFIXES.length];
-  const noun = USERNAME_NOUNS[Math.floor(index / USERNAME_PREFIXES.length) % USERNAME_NOUNS.length];
-  const suffix = Math.floor(Math.random() * 900) + 100;
-  return `${prefix}${noun}${suffix}`;
 }
 
 async function main() {
@@ -64,14 +81,13 @@ async function main() {
       user_id: null,
       is_bot: true,
       name: country.name,
-      username: randomUsername(i),
+      username: randomUsername(),
       flag_emoji: country.flagEmoji,
       country_code: country.iso2,
       gdp: Number(gdp.toFixed(3)),
       gdp_per_sec: 0,
       treasury: 0,
       treasury_regen_per_sec: 0,
-      credits: 0,
     };
   });
 

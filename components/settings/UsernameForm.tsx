@@ -39,7 +39,7 @@ export function UsernameForm({ currentUsername }: { currentUsername: string | nu
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-amber-500 text-black font-medium px-4 py-2 text-sm shadow-sm shadow-amber-500/20 disabled:opacity-50"
+          className="rounded-xl bg-brand-500 text-black font-medium px-4 py-2 text-sm shadow-sm shadow-brand-500/20 disabled:opacity-50"
         >
           Save
         </button>

@@ -14,7 +14,6 @@ export interface Country {
   gdpPerSec: number;
   treasury: number;
   treasuryRegenPerSec: number;
-  credits: number;
   lastSettledAt: string;
 }
 

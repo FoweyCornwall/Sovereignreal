@@ -1,4 +1,5 @@
 import { getRankTier } from "@/lib/game/rankTiers";
+import { RankIcon } from "@/components/dashboard/RankIcon";
 
 export function RankBadge({ gdp }: { gdp: number }) {
   const tier = getRankTier(gdp);
@@ -15,7 +16,7 @@ export function RankBadge({ gdp }: { gdp: number }) {
           : undefined,
       }}
     >
-      <span className="text-sm leading-none">{tier.icon}</span>
+      <RankIcon gdp={gdp} size={14} strokeWidth={2.25} />
       {tier.name}
     </span>
   );

@@ -15,17 +15,21 @@ export function StoreGrid({
   sectors,
   gdp,
   credits,
+  initialStackCounts,
 }: {
   initialSlots: StoreSlot[];
   restockAt: string;
   sectors: SectorState[];
   gdp: number;
   credits: number;
+  initialStackCounts: Record<string, number>;
 }) {
   usePollingRefresh();
 
   const [slots, setSlots] = useState(initialSlots);
   const [prevInitialSlots, setPrevInitialSlots] = useState(initialSlots);
+  const [stackCounts, setStackCounts] = useState(initialStackCounts);
+  const [prevStackCounts, setPrevStackCounts] = useState(initialStackCounts);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [now, setNow] = useState(() => Date.now());
@@ -37,6 +41,10 @@ export function StoreGrid({
   if (initialSlots !== prevInitialSlots) {
     setPrevInitialSlots(initialSlots);
     setSlots(initialSlots);
+  }
+  if (initialStackCounts !== prevStackCounts) {
+    setPrevStackCounts(initialStackCounts);
+    setStackCounts(initialStackCounts);
   }
 
   useEffect(() => {
@@ -70,6 +78,7 @@ export function StoreGrid({
             s.slotPosition === slot.slotPosition ? { ...s, quantity: s.quantity - 1 } : s
           )
         );
+        setStackCounts((prev) => ({ ...prev, [slot.id]: (prev[slot.id] ?? 0) + 1 }));
         setMessage(`${result.activePolicy.title} enacted — countdown started.`);
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_FUNDS") {
@@ -116,6 +125,7 @@ export function StoreGrid({
             slot={slot}
             sectors={sectors}
             gdp={gdp}
+            stackCount={stackCounts[slot.id] ?? 0}
             onEnact={handleEnact}
             pending={pending}
           />

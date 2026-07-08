@@ -70,7 +70,7 @@ export function CountrySetupForm() {
           type="button"
           onClick={() => setMode("real")}
           className={`flex-1 py-2 text-sm font-medium ${
-            mode === "real" ? "bg-amber-500 text-black" : ""
+            mode === "real" ? "bg-brand-500 text-black" : ""
           }`}
         >
           Real-World Country
@@ -79,7 +79,7 @@ export function CountrySetupForm() {
           type="button"
           onClick={() => setMode("custom")}
           className={`flex-1 py-2 text-sm font-medium ${
-            mode === "custom" ? "bg-amber-500 text-black" : ""
+            mode === "custom" ? "bg-brand-500 text-black" : ""
           }`}
         >
           Custom Country
@@ -102,7 +102,7 @@ export function CountrySetupForm() {
                 type="button"
                 onClick={() => setSelectedIso(c.iso2)}
                 className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm ${
-                  selectedIso === c.iso2 ? "bg-amber-500/10" : ""
+                  selectedIso === c.iso2 ? "bg-brand-500/10" : ""
                 }`}
               >
                 <CountryFlag countryCode={c.iso2} flagEmoji={c.flagEmoji} name={c.name} />
@@ -134,7 +134,7 @@ export function CountrySetupForm() {
                   onClick={() => setCustomEmoji(emoji)}
                   className={`text-xl rounded-full border px-2 py-1 ${
                     customEmoji === emoji
-                      ? "border-amber-500"
+                      ? "border-brand-500"
                       : "border-black/10 dark:border-white/10"
                   }`}
                 >
@@ -154,7 +154,7 @@ export function CountrySetupForm() {
                   onClick={() => setCustomColor(color)}
                   style={{ backgroundColor: color }}
                   className={`h-8 w-8 rounded-full border-2 ${
-                    customColor === color ? "border-amber-500" : "border-transparent"
+                    customColor === color ? "border-brand-500" : "border-transparent"
                   }`}
                   aria-label={color}
                 />
@@ -181,7 +181,7 @@ export function CountrySetupForm() {
         type="button"
         onClick={handleSubmit}
         disabled={pending}
-        className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
+        className="rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
       >
         {pending ? "Founding your nation…" : "Found Nation"}
       </button>

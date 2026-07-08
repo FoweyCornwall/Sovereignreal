@@ -53,7 +53,6 @@ export const BASE_TREASURY_REGEN = 0.5;
 export const GDP_REGEN_FACTOR = 0.01;
 
 export const STARTING_TREASURY = 1000;
-export const STARTING_CREDITS = 20;
 
 export const TIERS = [1, 2, 3, 4, 5] as const;
 export type Tier = (typeof TIERS)[number];

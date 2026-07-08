@@ -13,10 +13,11 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const [{ data: profile }, { data: country }] = await Promise.all([
-    supabase.from("profiles").select("username").eq("id", userData.user.id).maybeSingle(),
-    supabase.from("countries").select("credits").eq("user_id", userData.user.id).maybeSingle(),
-  ]);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username, credits")
+    .eq("id", userData.user.id)
+    .maybeSingle();
 
   return (
     <div className="flex flex-col gap-8">
@@ -33,7 +34,7 @@ export default async function SettingsPage() {
         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
           Credits
         </h2>
-        <CreditsPanel credits={country?.credits ?? 0} />
+        <CreditsPanel credits={profile?.credits ?? 0} />
       </div>
 
       <div className="flex flex-col gap-2">

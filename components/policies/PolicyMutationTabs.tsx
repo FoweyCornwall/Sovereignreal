@@ -14,6 +14,7 @@ export function PolicyMutationTabs({
   sectors,
   gdp,
   credits,
+  stackCounts,
 }: {
   slots: StoreSlot[];
   restockAt: string;
@@ -21,6 +22,7 @@ export function PolicyMutationTabs({
   sectors: SectorState[];
   gdp: number;
   credits: number;
+  stackCounts: Record<string, number>;
 }) {
   const [tab, setTab] = useState<Tab>("store");
 
@@ -31,7 +33,7 @@ export function PolicyMutationTabs({
           type="button"
           onClick={() => setTab("store")}
           className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
-            tab === "store" ? "bg-amber-500 text-black" : "text-zinc-500"
+            tab === "store" ? "bg-brand-500 text-black" : "text-zinc-500"
           }`}
         >
           Store
@@ -40,7 +42,7 @@ export function PolicyMutationTabs({
           type="button"
           onClick={() => setTab("mutations")}
           className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
-            tab === "mutations" ? "bg-amber-500 text-black" : "text-zinc-500"
+            tab === "mutations" ? "bg-brand-500 text-black" : "text-zinc-500"
           }`}
         >
           Mutations
@@ -54,6 +56,7 @@ export function PolicyMutationTabs({
           sectors={sectors}
           gdp={gdp}
           credits={credits}
+          initialStackCounts={stackCounts}
         />
       ) : (
         <MutationShop items={mutationItems} gdp={gdp} />

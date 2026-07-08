@@ -1,6 +1,7 @@
 import { formatWithCommas } from "@/lib/game/format";
 import { getRankTier } from "@/lib/game/rankTiers";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { RankIcon } from "@/components/dashboard/RankIcon";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
 function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
@@ -10,7 +11,7 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
   return (
     <div
       className={`flex items-center gap-3 px-4 py-2 ${
-        isMe ? "bg-amber-500/10" : ""
+        isMe ? "bg-brand-500/10" : ""
       }`}
     >
       <span className="w-8 text-sm tabular-nums text-zinc-500">#{entry.rank}</span>
@@ -37,7 +38,7 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
           WebkitTextFillColor: isIridescent ? "transparent" : undefined,
         }}
       >
-        <span className="text-sm leading-none">{tier.icon}</span>
+        <RankIcon gdp={entry.gdp} size={14} strokeWidth={2.25} />
         {tier.name}
       </span>
       <span className="text-sm tabular-nums shrink-0">{formatWithCommas(entry.gdp)}</span>
@@ -68,7 +69,7 @@ export function LeaderboardTable({
       </div>
 
       {isPinnedOutside && (
-        <div className="sticky bottom-16 sm:bottom-4 rounded-xl border-2 border-amber-500 bg-white dark:bg-black overflow-hidden">
+        <div className="sticky bottom-16 sm:bottom-4 rounded-xl border-2 border-brand-500 bg-white dark:bg-black overflow-hidden">
           <Row entry={myCountry} isMe />
         </div>
       )}

@@ -12,10 +12,12 @@ export function DashboardView({
   country,
   sectors,
   mutations,
+  credits,
 }: {
   country: Country;
   sectors: SectorState[];
   mutations: SectorMutation[];
+  credits: number;
 }) {
   usePollingRefresh();
 
@@ -40,7 +42,7 @@ export function DashboardView({
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-amber-500/20 bg-zinc-900 text-white shadow-sm p-4">
+        <div className="rounded-xl border border-brand-500/20 bg-zinc-900 text-white shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-zinc-400">GDP</p>
           <p className="text-xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
           <p className="text-xs text-zinc-400">
@@ -62,7 +64,7 @@ export function DashboardView({
         <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
           <p className="text-xl font-semibold tabular-nums">
-            {formatWithCommas(country.credits)}
+            {formatWithCommas(credits)}
           </p>
         </div>
       </div>

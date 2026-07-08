@@ -20,7 +20,7 @@ export function ThemeToggle() {
           onClick={() => setPreference(opt.value)}
           className={`rounded-lg px-3 py-1 text-sm font-medium transition-colors ${
             preference === opt.value
-              ? "bg-amber-500 text-black"
+              ? "bg-brand-500 text-black"
               : "text-zinc-500"
           }`}
         >

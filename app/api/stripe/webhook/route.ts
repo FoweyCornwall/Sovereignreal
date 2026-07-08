@@ -65,16 +65,26 @@ export async function POST(request: Request) {
       }
 
       if (inserted && inserted.length > 0) {
+        // Credits live on profiles (not countries) so they survive
+        // Delete & Restart. Look up the owning user via the country.
         const { data: country } = await admin
           .from("countries")
-          .select("credits")
+          .select("user_id")
           .eq("id", countryId)
           .single();
 
-        await admin
-          .from("countries")
-          .update({ credits: (country?.credits ?? 0) + credits })
-          .eq("id", countryId);
+        if (country?.user_id) {
+          const { data: profile } = await admin
+            .from("profiles")
+            .select("credits")
+            .eq("id", country.user_id)
+            .single();
+
+          await admin
+            .from("profiles")
+            .update({ credits: (profile?.credits ?? 0) + credits })
+            .eq("id", country.user_id);
+        }
       }
     }
   }

@@ -14,7 +14,7 @@ export function SectorContributionList({ sectors }: { sectors: SectorState[] }) 
           <span className="w-28 shrink-0">{SECTOR_LABELS[c.sector]}</span>
           <div className="flex-1 h-2 rounded-full bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
             <div
-              className="h-full bg-amber-500"
+              className="h-full bg-brand-500"
               style={{ width: `${Math.min(100, c.sharePercent)}%` }}
             />
           </div>

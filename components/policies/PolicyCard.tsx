@@ -1,6 +1,10 @@
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatDelta, formatDuration, formatWithCommas } from "@/lib/game/format";
-import { computeEffectiveCost } from "@/lib/game/store";
+import {
+  computeEffectiveCost,
+  STACK_NEGATIVE_FACTOR,
+  STACK_POSITIVE_FACTOR,
+} from "@/lib/game/store";
 import { computeEffectiveDelta } from "@/lib/game/gdp";
 import type { SectorState, StoreSlot } from "@/lib/types/game";
 
@@ -9,19 +13,21 @@ const TIER_COLOR: Record<number, string> = {
   2: "bg-emerald-200 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200",
   3: "bg-sky-200 text-sky-900 dark:bg-sky-900 dark:text-sky-200",
   4: "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-200",
-  5: "bg-amber-300 text-amber-950 dark:bg-amber-500 dark:text-black",
+  5: "bg-brand-300 text-brand-950 dark:bg-brand-500 dark:text-black",
 };
 
 export function PolicyCard({
   slot,
   sectors,
   gdp,
+  stackCount,
   onEnact,
   pending,
 }: {
   slot: StoreSlot;
   sectors: SectorState[];
   gdp: number;
+  stackCount: number;
   onEnact: (slot: StoreSlot) => void;
   pending: boolean;
 }) {
@@ -30,6 +36,12 @@ export function PolicyCard({
   const effectiveCost = computeEffectiveCost(slot.baseCost, gdp);
   const soldOut = slot.quantity <= 0;
   const lowStock = !soldOut && slot.quantity <= slot.initialQuantity * 0.15;
+  // Positive deltas shrink and negatives grow with each stacked enactment
+  // (matches enact_store_policy() in 0004_policy_store.sql). This is the
+  // "derived benefit" the store card advertises: the effect of the NEXT
+  // enactment, which changes every time the player enacts this policy again.
+  const posStack = Math.pow(STACK_POSITIVE_FACTOR, stackCount);
+  const negStack = Math.pow(STACK_NEGATIVE_FACTOR, stackCount);
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
@@ -48,18 +60,23 @@ export function PolicyCard({
       <ul className="text-sm flex flex-col gap-0.5">
         {deltaEntries.map(([sector, delta]) => {
           const currentScore = scoreBySector.get(sector as keyof typeof SECTOR_LABELS) ?? 0;
-          const effectiveDelta = computeEffectiveDelta(delta!, currentScore);
-          const isDampened = delta! > 0 && Math.abs(effectiveDelta - delta!) > 0.001;
+          const stackedDelta = delta! >= 0 ? delta! * posStack : delta! * negStack;
+          const effectiveDelta = computeEffectiveDelta(stackedDelta, currentScore);
+          const isDampened =
+            stackedDelta > 0 && Math.abs(effectiveDelta - stackedDelta) > 0.001;
+          const isStacked = stackCount > 0 && Math.abs(stackedDelta - delta!) > 0.001;
           return (
             <li
               key={sector}
               className={delta! >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}
             >
               {formatDelta(effectiveDelta)} {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
-              {isDampened && (
+              {(isDampened || isStacked) && (
                 <span className="text-zinc-400 dark:text-zinc-600">
                   {" "}
-                  (base {formatDelta(delta!)}, {currentScore.toFixed(0)}/100 already)
+                  (base {formatDelta(delta!)}
+                  {isStacked ? `, stacked x${stackCount}` : ""}
+                  {isDampened ? `, ${currentScore.toFixed(0)}/100 already` : ""})
                 </span>
               )}
             </li>
@@ -72,7 +89,7 @@ export function PolicyCard({
         <span>{formatDuration(slot.durationSeconds)}</span>
       </div>
 
-      <p className={`text-xs ${soldOut ? "text-red-500" : lowStock ? "text-amber-500" : "text-zinc-500"}`}>
+      <p className={`text-xs ${soldOut ? "text-red-500" : lowStock ? "text-brand-500" : "text-zinc-500"}`}>
         {soldOut ? "Sold Out" : `${slot.quantity} in stock`}
       </p>
 
@@ -80,7 +97,7 @@ export function PolicyCard({
         type="button"
         onClick={() => onEnact(slot)}
         disabled={pending || soldOut}
-        className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
+        className="rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
       >
         {soldOut ? "Sold Out" : "Enact"}
       </button>

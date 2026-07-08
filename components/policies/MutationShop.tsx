@@ -70,7 +70,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
                 type="button"
                 onClick={() => handleBuy(item)}
                 disabled={pending}
-                className="rounded-xl bg-amber-500 text-black font-medium py-2.5 shadow-sm shadow-amber-500/20 disabled:opacity-50"
+                className="rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
               >
                 Activate
               </button>

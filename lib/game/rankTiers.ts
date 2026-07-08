@@ -2,24 +2,22 @@ export interface RankTier {
   name: string;
   threshold: number;
   color: string;
-  icon: string;
 }
 
 // GDP thresholds. Note the last gap is 100x while every other gap is 10x -
 // intentional, making Transcendent a deliberately much rarer top tier.
 export const RANK_TIERS: RankTier[] = [
-  { name: "Bronze", threshold: 0, color: "#B08D57", icon: "🥉" },
-  { name: "Silver", threshold: 100_000_000, color: "#C0C0C0", icon: "🥈" },
-  { name: "Gold", threshold: 1_000_000_000, color: "#FFD700", icon: "🥇" },
-  { name: "Platinum", threshold: 10_000_000_000, color: "#8FDDE0", icon: "🔷" },
-  { name: "Diamond", threshold: 100_000_000_000, color: "#B9F2FF", icon: "💎" },
-  { name: "Master", threshold: 1_000_000_000_000, color: "#9D4EDD", icon: "🏆" },
-  { name: "Grandmaster", threshold: 10_000_000_000_000, color: "#FF5C7A", icon: "👑" },
+  { name: "Bronze", threshold: 0, color: "#B08D57" },
+  { name: "Silver", threshold: 100_000_000, color: "#C0C0C0" },
+  { name: "Gold", threshold: 1_000_000_000, color: "#FFD700" },
+  { name: "Platinum", threshold: 10_000_000_000, color: "#8FDDE0" },
+  { name: "Diamond", threshold: 100_000_000_000, color: "#B9F2FF" },
+  { name: "Master", threshold: 1_000_000_000_000, color: "#9D4EDD" },
+  { name: "Grandmaster", threshold: 10_000_000_000_000, color: "#FF5C7A" },
   {
     name: "Transcendent",
     threshold: 1_000_000_000_000_000,
     color: "iridescent",
-    icon: "✨",
   },
 ];
 

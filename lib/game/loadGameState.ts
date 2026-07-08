@@ -15,7 +15,6 @@ function mapCountry(row: {
   gdp_per_sec: number;
   treasury: number;
   treasury_regen_per_sec: number;
-  credits: number;
   last_settled_at: string;
 }): Country {
   return {
@@ -30,7 +29,6 @@ function mapCountry(row: {
     gdpPerSec: row.gdp_per_sec,
     treasury: row.treasury,
     treasuryRegenPerSec: row.treasury_regen_per_sec,
-    credits: row.credits,
     lastSettledAt: row.last_settled_at,
   };
 }
@@ -43,6 +41,7 @@ export async function loadGameState(): Promise<{
   country: Country;
   sectors: SectorState[];
   mutations: SectorMutation[];
+  credits: number;
 }> {
   const supabase = await createClient();
 
@@ -87,6 +86,12 @@ export async function loadGameState(): Promise<{
     throw new Error(`Failed to load mutations: ${mutationError.message}`);
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("credits")
+    .eq("id", userData.user.id)
+    .maybeSingle();
+
   return {
     country: mapCountry(settled),
     sectors: sectorRows.map((r) => ({
@@ -100,5 +105,6 @@ export async function loadGameState(): Promise<{
       multiplier: m.multiplier,
       acquiredAt: m.acquired_at,
     })),
+    credits: profile?.credits ?? 0,
   };
 }

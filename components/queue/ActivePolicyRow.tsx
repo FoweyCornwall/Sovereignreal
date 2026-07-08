@@ -29,7 +29,7 @@ export function ActivePolicyRow({ policy }: { policy: ActivePolicy }) {
 
       <div className="h-2 rounded-full bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
         <div
-          className="h-full bg-amber-500 transition-all"
+          className="h-full bg-brand-500 transition-all"
           style={{ width: `${progress * 100}%` }}
         />
       </div>
