@@ -15,9 +15,27 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; username: string | null; credits: number; created_at: string };
-        Insert: { id: string; username?: string | null; credits?: number; created_at?: string };
-        Update: { id?: string; username?: string | null; credits?: number; created_at?: string };
+        Row: {
+          id: string;
+          username: string | null;
+          credits: number;
+          last_daily_claim_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          username?: string | null;
+          credits?: number;
+          last_daily_claim_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          username?: string | null;
+          credits?: number;
+          last_daily_claim_at?: string | null;
+          created_at?: string;
+        };
         Relationships: [];
       };
       countries: {
@@ -324,6 +342,10 @@ export interface Database {
       is_username_available: {
         Args: { p_username: string };
         Returns: boolean;
+      };
+      claim_daily_reward: {
+        Args: Record<string, never>;
+        Returns: Json;
       };
       get_leaderboard: {
         Args: { p_limit?: number };

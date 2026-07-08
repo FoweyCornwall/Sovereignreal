@@ -5,6 +5,7 @@ import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { SectorCard } from "@/components/dashboard/SectorCard";
 import { RankBadge } from "@/components/dashboard/RankBadge";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { DailyRewardChip } from "@/components/dashboard/DailyRewardChip";
 import { formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
 
@@ -13,11 +14,13 @@ export function DashboardView({
   sectors,
   mutations,
   credits,
+  lastDailyClaimAt,
 }: {
   country: Country;
   sectors: SectorState[];
   mutations: SectorMutation[];
   credits: number;
+  lastDailyClaimAt: string | null;
 }) {
   usePollingRefresh();
 
@@ -61,11 +64,14 @@ export function DashboardView({
           </p>
         </div>
 
-        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
-          <p className="text-xl font-semibold tabular-nums">
-            {formatWithCommas(credits)}
-          </p>
+        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4 flex flex-col gap-2">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
+            <p className="text-xl font-semibold tabular-nums">
+              {formatWithCommas(credits)}
+            </p>
+          </div>
+          <DailyRewardChip lastClaimedAt={lastDailyClaimAt} />
         </div>
       </div>
 

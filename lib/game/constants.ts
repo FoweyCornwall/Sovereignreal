@@ -104,4 +104,4 @@ export const TIER_DRAW_WEIGHT: Record<Tier, number> = {
 };
 
 // How often the client polls /api/settle while a game page is open (ms).
-export const SETTLE_POLL_INTERVAL_MS = 10_000;
+export const SETTLE_POLL_INTERVAL_MS = 30_000;

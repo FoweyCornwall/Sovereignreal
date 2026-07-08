@@ -62,9 +62,29 @@ body {
   animation: mutation-rgb-glow 5s linear infinite;
 }
 
+@keyframes enact-button-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.enact-button-pulse {
+  animation: enact-button-pulse 260ms ease-out;
+}
+
+@keyframes enact-fly-up {
+  0% { opacity: 0; transform: translate(-50%, 0); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -48px); }
+}
+.enact-fly-up {
+  animation: enact-fly-up 800ms ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-star,
-  .mutation-rgb-glow {
+  .mutation-rgb-glow,
+  .enact-button-pulse,
+  .enact-fly-up {
     animation: none;
   }
 }

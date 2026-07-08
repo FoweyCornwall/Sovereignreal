@@ -5,13 +5,14 @@ export const STORE_SLOT_COUNT = 6;
 export const STORE_RESTOCK_SECONDS = 900; // 15 minutes
 export const STORE_REFRESH_COST_CREDITS = 5;
 
-// Scarcer at higher tiers. First-pass proposal, tunable.
+// Scarcer at higher tiers. Mirrored in reroll_store_slots() in
+// supabase/migrations/0013_cost_and_stock_rebalance.sql - keep in sync.
 export const STORE_SLOT_QUANTITY_RANGE: Record<Tier, { min: number; max: number }> = {
-  1: { min: 40, max: 80 },
-  2: { min: 20, max: 40 },
-  3: { min: 10, max: 20 },
-  4: { min: 4, max: 8 },
-  5: { min: 1, max: 3 },
+  1: { min: 2000, max: 5000 },
+  2: { min: 1000, max: 2500 },
+  3: { min: 400, max: 1000 },
+  4: { min: 100, max: 300 },
+  5: { min: 30, max: 100 },
 };
 
 // Chance per elapsed minute that a slot's stock ticks down a little, to

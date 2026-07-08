@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatDelta, formatDuration, formatWithCommas } from "@/lib/game/format";
 import {
@@ -42,6 +45,20 @@ export function PolicyCard({
   // enactment, which changes every time the player enacts this policy again.
   const posStack = Math.pow(STACK_POSITIVE_FACTOR, stackCount);
   const negStack = Math.pow(STACK_NEGATIVE_FACTOR, stackCount);
+
+  // Very short-lived flag (~800ms) used to render the pulse + fly-up chip
+  // when the player clicks Enact. Bumped by a monotonically-increasing key
+  // so React actually re-mounts the chip on every click (not just the first).
+  const [enactedTick, setEnactedTick] = useState(0);
+  const primaryDelta = slot.statDeltas[slot.primarySector];
+
+  function handleClick() {
+    setEnactedTick((t) => t + 1);
+    // Reset well after the CSS animation completes (~800ms) so the chip is
+    // removed and re-mount cleanly next time.
+    setTimeout(() => setEnactedTick((t) => t), 900);
+    onEnact(slot);
+  }
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
@@ -93,14 +110,27 @@ export function PolicyCard({
         {soldOut ? "Sold Out" : `${slot.quantity} in stock`}
       </p>
 
-      <button
-        type="button"
-        onClick={() => onEnact(slot)}
-        disabled={pending || soldOut}
-        className="rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
-      >
-        {soldOut ? "Sold Out" : "Enact"}
-      </button>
+      <div className="relative">
+        {enactedTick > 0 && primaryDelta !== undefined && (
+          <span
+            key={enactedTick}
+            className="enact-fly-up pointer-events-none absolute left-1/2 -top-4 text-sm font-semibold text-brand-500"
+          >
+            {formatDelta(primaryDelta)} {SECTOR_LABELS[slot.primarySector]}
+          </span>
+        )}
+        <button
+          key={enactedTick}
+          type="button"
+          onClick={handleClick}
+          disabled={pending || soldOut}
+          className={`w-full rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50 ${
+            enactedTick > 0 ? "enact-button-pulse" : ""
+          }`}
+        >
+          {soldOut ? "Sold Out" : "Enact"}
+        </button>
+      </div>
     </div>
   );
 }

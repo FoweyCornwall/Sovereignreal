@@ -42,6 +42,7 @@ export async function loadGameState(): Promise<{
   sectors: SectorState[];
   mutations: SectorMutation[];
   credits: number;
+  lastDailyClaimAt: string | null;
 }> {
   const supabase = await createClient();
 
@@ -88,7 +89,7 @@ export async function loadGameState(): Promise<{
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("credits")
+    .select("credits, last_daily_claim_at")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -106,5 +107,7 @@ export async function loadGameState(): Promise<{
       acquiredAt: m.acquired_at,
     })),
     credits: profile?.credits ?? 0,
+    lastDailyClaimAt: (profile as { last_daily_claim_at?: string | null } | null)
+      ?.last_daily_claim_at ?? null,
   };
 }
