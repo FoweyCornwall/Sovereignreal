@@ -48,9 +48,10 @@ export const SECTOR_WEIGHTS: Record<Sector, number> = {
 // ranks depend on landing mutations just to progress at a normal rate.
 export const GDP_SCALE = 5000;
 
-// treasury_regen_per_sec = BASE_TREASURY_REGEN + GDP_REGEN_FACTOR * gdp
+// treasury_regen_per_sec = BASE_TREASURY_REGEN + INCOME_REGEN_FACTOR * gdp_per_sec
+// (mirrored in settle_country() in 0015_treasury_regen_from_gdp_per_sec.sql)
 export const BASE_TREASURY_REGEN = 0.5;
-export const GDP_REGEN_FACTOR = 0.01;
+export const INCOME_REGEN_FACTOR = 0.5;
 
 export const STARTING_TREASURY = 1000;
 

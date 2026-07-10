@@ -53,7 +53,6 @@ export function PolicyCard({
   // class stays on the element).
   const [enactedTick, setEnactedTick] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const primaryDelta = slot.statDeltas[slot.primarySector];
 
   useEffect(() => {
     if (enactedTick === 0 || !buttonRef.current) return;
@@ -121,13 +120,32 @@ export function PolicyCard({
       </p>
 
       <div className="relative">
-        {enactedTick > 0 && primaryDelta !== undefined && (
-          <span
+        {enactedTick > 0 && (
+          <div
             key={enactedTick}
-            className="enact-fly-up pointer-events-none absolute left-1/2 -top-4 text-sm font-semibold text-brand-500"
+            className="enact-fly-up pointer-events-none absolute left-1/2 -top-2 -translate-x-1/2 flex flex-col items-center gap-0.5 text-sm font-semibold whitespace-nowrap"
           >
-            {formatDelta(primaryDelta)} {SECTOR_LABELS[slot.primarySector]}
-          </span>
+            {deltaEntries.map(([sector, delta]) => {
+              const currentScore =
+                scoreBySector.get(sector as keyof typeof SECTOR_LABELS) ?? 0;
+              const stackedDelta =
+                delta! >= 0 ? delta! * posStack : delta! * negStack;
+              const effectiveDelta = computeEffectiveDelta(stackedDelta, currentScore);
+              return (
+                <span
+                  key={sector}
+                  className={
+                    delta! >= 0
+                      ? "text-emerald-500 drop-shadow-sm"
+                      : "text-red-500 drop-shadow-sm"
+                  }
+                >
+                  {formatDelta(effectiveDelta)}{" "}
+                  {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
+                </span>
+              );
+            })}
+          </div>
         )}
         <button
           ref={buttonRef}
