@@ -307,7 +307,7 @@ as $$
 declare
   v_owner uuid;
 begin
-  select user_id into v_owner from countries where id = p_country_id;
+  select c.user_id into v_owner from countries c where c.id = p_country_id;
   if v_owner is null or v_owner <> auth.uid() then
     raise exception 'not authorized';
   end if;
