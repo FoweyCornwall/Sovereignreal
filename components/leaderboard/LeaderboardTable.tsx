@@ -2,6 +2,7 @@ import { formatWithCommas } from "@/lib/game/format";
 import { getRankTier } from "@/lib/game/rankTiers";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { RankIcon } from "@/components/dashboard/RankIcon";
+import { VipBadge } from "@/components/ui/VipBadge";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
 function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
@@ -10,8 +11,8 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-2 ${
-        isMe ? "bg-brand-500/10" : ""
+      className={`flex items-center gap-3 px-4 py-2 ${isMe ? "bg-brand-500/10" : ""} ${
+        entry.isVip ? "ring-1 ring-inset ring-[#FFD700]" : ""
       }`}
     >
       <span className="w-8 text-sm tabular-nums text-zinc-500">#{entry.rank}</span>
@@ -22,8 +23,9 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
         name={entry.name}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">
-          {entry.username ? `@${entry.username}` : "Anonymous"}
+        <p className="text-sm font-medium truncate flex items-center gap-1.5">
+          <span className="truncate">{entry.username ? `@${entry.username}` : "Anonymous"}</span>
+          {entry.isVip && <VipBadge />}
         </p>
         <p className="text-xs text-zinc-500 truncate">{entry.name}</p>
       </div>

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getStripeClient } from "@/lib/billing/stripe";
 import { getCreditPack } from "@/lib/billing/creditPacks";
+import { VIP_PRICE_CENTS } from "@/lib/game/vip";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
@@ -59,6 +60,45 @@ export async function createCheckoutSession(packKey: string) {
     },
     success_url: `${siteUrl}/settings?purchase=success`,
     cancel_url: `${siteUrl}/settings?purchase=cancelled`,
+  });
+
+  if (!session.url) {
+    throw new Error("Stripe did not return a checkout URL.");
+  }
+
+  redirect(session.url);
+}
+
+export async function createVipCheckoutSession() {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    redirect("/login");
+  }
+
+  const siteUrl = await getSiteUrl();
+  const stripe = getStripeClient();
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "subscription",
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: { name: "Sovereign VIP" },
+          unit_amount: VIP_PRICE_CENTS,
+          recurring: { interval: "month" },
+        },
+        quantity: 1,
+      },
+    ],
+    metadata: {
+      kind: "vip",
+      user_id: userData.user.id,
+    },
+    success_url: `${siteUrl}/settings?vip=success`,
+    cancel_url: `${siteUrl}/settings?vip=cancelled`,
   });
 
   if (!session.url) {

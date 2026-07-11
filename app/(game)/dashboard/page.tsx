@@ -2,7 +2,15 @@ import { loadGameState } from "@/lib/game/loadGameState";
 import { DashboardView } from "@/components/dashboard/DashboardView";
 
 export default async function DashboardPage() {
-  const { country, sectors, mutations, credits, lastDailyClaimAt } = await loadGameState();
+  const {
+    country,
+    sectors,
+    mutations,
+    credits,
+    lastDailyClaimAt,
+    equippedSectorTheme,
+    vipExpiresAt,
+  } = await loadGameState();
 
   return (
     <DashboardView
@@ -11,6 +19,8 @@ export default async function DashboardPage() {
       mutations={mutations}
       credits={credits}
       lastDailyClaimAt={lastDailyClaimAt}
+      equippedSectorTheme={equippedSectorTheme}
+      vipExpiresAt={vipExpiresAt}
     />
   );
 }

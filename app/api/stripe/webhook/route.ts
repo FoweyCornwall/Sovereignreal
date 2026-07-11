@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
 import { getStripeClient } from "@/lib/billing/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type Stripe from "stripe";
 
 export const runtime = "nodejs";
+
+// Stripe moved current_period_end from the top-level Subscription object
+// onto each SubscriptionItem in newer API versions - check both so this
+// keeps working regardless of which API version the Stripe account is
+// pinned to.
+function getCurrentPeriodEnd(subscription: Stripe.Subscription): number | null {
+  const topLevel = (subscription as unknown as { current_period_end?: number })
+    .current_period_end;
+  if (typeof topLevel === "number") return topLevel;
+
+  const itemLevel = subscription.items.data[0] as unknown as {
+    current_period_end?: number;
+  };
+  return typeof itemLevel?.current_period_end === "number" ? itemLevel.current_period_end : null;
+}
 
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
@@ -28,9 +44,39 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as {
       id: string;
-      metadata: { country_id?: string; pack_key?: string; credits?: string } | null;
+      mode: string;
+      customer: string | null;
+      subscription: string | null;
+      metadata: {
+        country_id?: string;
+        pack_key?: string;
+        credits?: string;
+        kind?: string;
+        user_id?: string;
+      } | null;
       amount_total: number | null;
     };
+
+    if (session.mode === "subscription" && session.metadata?.kind === "vip") {
+      const userId = session.metadata.user_id;
+      if (userId && session.subscription) {
+        const admin = createAdminClient();
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        const currentPeriodEnd = getCurrentPeriodEnd(subscription);
+
+        if (currentPeriodEnd) {
+          await admin
+            .from("profiles")
+            .update({
+              vip_expires_at: new Date(currentPeriodEnd * 1000).toISOString(),
+              stripe_customer_id: session.customer,
+              stripe_subscription_id: session.subscription,
+            })
+            .eq("id", userId);
+        }
+      }
+      return NextResponse.json({ received: true });
+    }
 
     const countryId = session.metadata?.country_id;
     const packKey = session.metadata?.pack_key;
@@ -87,6 +133,28 @@ export async function POST(request: Request) {
         }
       }
     }
+  }
+
+  // VIP subscription renewal - extends vip_expires_at each billing cycle.
+  // The initial period is set by checkout.session.completed above; this
+  // covers every renewal after that.
+  if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object as { subscription: string | null };
+
+    if (invoice.subscription) {
+      const admin = createAdminClient();
+      const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+      const currentPeriodEnd = getCurrentPeriodEnd(subscription);
+
+      if (currentPeriodEnd) {
+        await admin
+          .from("profiles")
+          .update({ vip_expires_at: new Date(currentPeriodEnd * 1000).toISOString() })
+          .eq("stripe_subscription_id", invoice.subscription);
+      }
+    }
+
+    return NextResponse.json({ received: true });
   }
 
   return NextResponse.json({ received: true });

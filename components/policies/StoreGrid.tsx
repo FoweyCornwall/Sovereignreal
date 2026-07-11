@@ -3,7 +3,12 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PolicyCard } from "@/components/policies/PolicyCard";
-import { getStore, enactStorePolicy, refreshStore } from "@/lib/actions/policies";
+import {
+  getStore,
+  enactStorePolicy,
+  refreshStore,
+  claimVipFreeRestock,
+} from "@/lib/actions/policies";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { formatCountdown, formatWithCommas } from "@/lib/game/format";
 import { STORE_REFRESH_COST_CREDITS } from "@/lib/game/store";
@@ -16,6 +21,8 @@ export function StoreGrid({
   gdp,
   credits,
   initialStackCounts,
+  isVip,
+  lastFreeRestockAt,
 }: {
   initialSlots: StoreSlot[];
   restockAt: string;
@@ -23,6 +30,8 @@ export function StoreGrid({
   gdp: number;
   credits: number;
   initialStackCounts: Record<string, number>;
+  isVip: boolean;
+  lastFreeRestockAt: string | null;
 }) {
   usePollingRefresh();
 
@@ -53,6 +62,10 @@ export function StoreGrid({
   }, []);
 
   const remainingMs = Math.max(0, new Date(restockAt).getTime() - now);
+  const freeRestockReadyAt = lastFreeRestockAt
+    ? new Date(lastFreeRestockAt).getTime() + 5 * 60 * 1000
+    : 0;
+  const freeRestockOnCooldown = isVip && now < freeRestockReadyAt;
 
   function handleRefreshStore() {
     setMessage(null);
@@ -60,6 +73,24 @@ export function StoreGrid({
       const result = await refreshStore();
       if (!result.ok) {
         setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+        return;
+      }
+      const fresh = await getStore();
+      setSlots(fresh.slots);
+      router.refresh();
+    });
+  }
+
+  function handleVipFreeRestock() {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await claimVipFreeRestock();
+      if (!result.ok) {
+        if (result.reason === "ON_COOLDOWN") {
+          setMessage("Free VIP restock is still on cooldown.");
+        } else {
+          setMessage("VIP perk not available.");
+        }
         return;
       }
       const fresh = await getStore();
@@ -102,14 +133,26 @@ export function StoreGrid({
           <h1 className="text-xl font-semibold">Store</h1>
           <p className="text-xs text-zinc-500">Restocks in {formatCountdown(remainingMs)}</p>
         </div>
-        <button
-          type="button"
-          onClick={handleRefreshStore}
-          disabled={pending || credits < STORE_REFRESH_COST_CREDITS}
-          className="text-sm rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 disabled:opacity-50"
-        >
-          Refresh ({STORE_REFRESH_COST_CREDITS} credits)
-        </button>
+        <div className="flex gap-2">
+          {isVip && (
+            <button
+              type="button"
+              onClick={handleVipFreeRestock}
+              disabled={pending || freeRestockOnCooldown}
+              className="text-sm rounded-xl border border-[#FFD700] text-[#B8860B] px-3 py-1.5 disabled:opacity-50"
+            >
+              {freeRestockOnCooldown ? "Free restock (cooling down)" : "Free VIP restock"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleRefreshStore}
+            disabled={pending || credits < STORE_REFRESH_COST_CREDITS}
+            className="text-sm rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 disabled:opacity-50"
+          >
+            Refresh ({STORE_REFRESH_COST_CREDITS} credits)
+          </button>
+        </div>
       </div>
 
       {message && (

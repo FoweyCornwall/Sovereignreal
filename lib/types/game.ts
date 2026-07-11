@@ -87,6 +87,7 @@ export interface LeaderboardEntry {
   countryCode: string | null;
   gdp: number;
   rank: number;
+  isVip: boolean;
 }
 
 export const MUTATION_RARITIES = [

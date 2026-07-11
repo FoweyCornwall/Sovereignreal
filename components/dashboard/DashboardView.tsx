@@ -6,8 +6,11 @@ import { SectorCard } from "@/components/dashboard/SectorCard";
 import { RankBadge } from "@/components/dashboard/RankBadge";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { DailyRewardChip } from "@/components/dashboard/DailyRewardChip";
+import { VipBadge } from "@/components/ui/VipBadge";
 import { formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
+import { isVipActive } from "@/lib/game/vip";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
+import type { SectorTheme } from "@/lib/game/cosmetics";
 
 export function DashboardView({
   country,
@@ -15,12 +18,16 @@ export function DashboardView({
   mutations,
   credits,
   lastDailyClaimAt,
+  equippedSectorTheme,
+  vipExpiresAt,
 }: {
   country: Country;
   sectors: SectorState[];
   mutations: SectorMutation[];
   credits: number;
   lastDailyClaimAt: string | null;
+  equippedSectorTheme: SectorTheme | null;
+  vipExpiresAt: string | null;
 }) {
   usePollingRefresh();
 
@@ -39,7 +46,10 @@ export function DashboardView({
           size="md"
         />
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold">{country.name}</h1>
+          <h1 className="text-xl font-semibold flex items-center gap-2">
+            {country.name}
+            {isVipActive(vipExpiresAt) && <VipBadge />}
+          </h1>
           <RankBadge gdp={country.gdp} />
         </div>
       </header>
@@ -81,7 +91,12 @@ export function DashboardView({
         </h2>
         <div className="grid grid-cols-2 gap-2">
           {sectors.map((s) => (
-            <SectorCard key={s.sector} state={s} mutation={mutationBySector.get(s.sector)} />
+            <SectorCard
+              key={s.sector}
+              state={s}
+              mutation={mutationBySector.get(s.sector)}
+              equippedTheme={equippedSectorTheme}
+            />
           ))}
         </div>
       </div>

@@ -1,16 +1,19 @@
 import { getStore } from "@/lib/actions/policies";
 import { getMutationShopItems } from "@/lib/actions/mutations";
 import { loadGameState } from "@/lib/game/loadGameState";
+import { loadCosmetics } from "@/lib/game/loadCosmetics";
 import { PolicyMutationTabs } from "@/components/policies/PolicyMutationTabs";
 import { createClient } from "@/lib/supabase/server";
+import { isVipActive } from "@/lib/game/vip";
 
 export default async function PoliciesPage() {
   const supabase = await createClient();
 
-  const [{ slots, restockAt }, mutationItems, gameState] = await Promise.all([
+  const [{ slots, restockAt }, mutationItems, gameState, cosmetics] = await Promise.all([
     getStore(),
     getMutationShopItems(),
     loadGameState(),
+    loadCosmetics(),
   ]);
 
   // Stack counts: how many times this country has ever enacted each policy in
@@ -35,6 +38,10 @@ export default async function PoliciesPage() {
       gdp={gameState.country.gdp}
       credits={gameState.credits}
       stackCounts={stackCounts}
+      isVip={isVipActive(gameState.vipExpiresAt)}
+      lastFreeRestockAt={gameState.lastFreeRestockAt}
+      cosmeticsOwned={cosmetics.ownedPackKeys}
+      equippedSectorTheme={cosmetics.equippedSectorTheme}
     />
   );
 }

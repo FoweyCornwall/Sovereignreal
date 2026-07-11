@@ -20,6 +20,11 @@ export interface Database {
           username: string | null;
           credits: number;
           last_daily_claim_at: string | null;
+          equipped_sector_theme: string | null;
+          vip_expires_at: string | null;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          last_free_restock_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -27,6 +32,11 @@ export interface Database {
           username?: string | null;
           credits?: number;
           last_daily_claim_at?: string | null;
+          equipped_sector_theme?: string | null;
+          vip_expires_at?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          last_free_restock_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -34,6 +44,11 @@ export interface Database {
           username?: string | null;
           credits?: number;
           last_daily_claim_at?: string | null;
+          equipped_sector_theme?: string | null;
+          vip_expires_at?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          last_free_restock_at?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -52,6 +67,7 @@ export interface Database {
           treasury: number;
           treasury_regen_per_sec: number;
           is_bot: boolean;
+          is_vip_bot: boolean;
           last_settled_at: string;
           created_at: string;
         };
@@ -68,6 +84,7 @@ export interface Database {
           treasury?: number;
           treasury_regen_per_sec?: number;
           is_bot?: boolean;
+          is_vip_bot?: boolean;
           last_settled_at?: string;
           created_at?: string;
         };
@@ -289,6 +306,63 @@ export interface Database {
         Update: { id?: number; last_drift_at?: string };
         Relationships: [];
       };
+      cosmetic_packs: {
+        Row: {
+          key: string;
+          name: string;
+          description: string | null;
+          price_credits: number;
+          theme: string;
+        };
+        Insert: {
+          key: string;
+          name: string;
+          description?: string | null;
+          price_credits: number;
+          theme: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["cosmetic_packs"]["Insert"]>;
+        Relationships: [];
+      };
+      user_cosmetics: {
+        Row: { user_id: string; pack_key: string; acquired_at: string };
+        Insert: { user_id: string; pack_key: string; acquired_at?: string };
+        Update: Partial<Database["public"]["Tables"]["user_cosmetics"]["Insert"]>;
+        Relationships: [];
+      };
+      battle_queue: {
+        Row: { country_id: string; rank_tier: string; is_vip: boolean; queued_at: string };
+        Insert: { country_id: string; rank_tier: string; is_vip?: boolean; queued_at?: string };
+        Update: Partial<Database["public"]["Tables"]["battle_queue"]["Insert"]>;
+        Relationships: [];
+      };
+      battles: {
+        Row: {
+          id: string;
+          attacker_id: string;
+          defender_id: string;
+          defender_is_bot: boolean;
+          winner_id: string | null;
+          attacker_power: number;
+          defender_power: number;
+          loot_amount: number;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["battles"]["Row"]> & {
+          attacker_id: string;
+          defender_id: string;
+          attacker_power: number;
+          defender_power: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["battles"]["Row"]>;
+        Relationships: [];
+      };
+      battle_cooldowns: {
+        Row: { attacker_id: string; defender_id: string; last_attacked_at: string };
+        Insert: { attacker_id: string; defender_id: string; last_attacked_at?: string };
+        Update: Partial<Database["public"]["Tables"]["battle_cooldowns"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: {
       policy_history: {
@@ -358,11 +432,50 @@ export interface Database {
           country_code: string | null;
           gdp: number;
           rank: number;
+          is_vip: boolean;
         }[];
       };
       get_my_rank: {
         Args: { p_country_id: string };
         Returns: number;
+      };
+      purchase_cosmetic_pack: {
+        Args: { p_pack_key: string };
+        Returns: Json;
+      };
+      equip_sector_theme: {
+        Args: { p_theme: string | null };
+        Returns: Json;
+      };
+      is_vip: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
+      claim_vip_free_restock: {
+        Args: { p_country_id: string };
+        Returns: Json;
+      };
+      find_battle: {
+        Args: { p_country_id: string };
+        Returns: Json;
+      };
+      cancel_battle_search: {
+        Args: { p_country_id: string };
+        Returns: undefined;
+      };
+      get_recent_battles: {
+        Args: { p_country_id: string; p_limit?: number };
+        Returns: {
+          id: string;
+          attacker_id: string;
+          attacker_name: string;
+          defender_id: string;
+          defender_name: string;
+          defender_is_bot: boolean;
+          winner_id: string | null;
+          loot_amount: number;
+          created_at: string;
+        }[];
       };
     };
     Enums: Record<string, never>;

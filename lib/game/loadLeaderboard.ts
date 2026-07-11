@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { isVipActive } from "@/lib/game/vip";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
 const LEADERBOARD_LIMIT = 100;
@@ -27,11 +28,15 @@ export async function loadLeaderboard(): Promise<{
     redirect("/setup");
   }
 
-  const [{ data: rows, error: leaderboardError }, { data: rank, error: rankError }] =
-    await Promise.all([
-      supabase.rpc("get_leaderboard", { p_limit: LEADERBOARD_LIMIT }),
-      supabase.rpc("get_my_rank", { p_country_id: country.id }),
-    ]);
+  const [
+    { data: rows, error: leaderboardError },
+    { data: rank, error: rankError },
+    { data: profile },
+  ] = await Promise.all([
+    supabase.rpc("get_leaderboard", { p_limit: LEADERBOARD_LIMIT }),
+    supabase.rpc("get_my_rank", { p_country_id: country.id }),
+    supabase.from("profiles").select("vip_expires_at").eq("id", userData.user.id).maybeSingle(),
+  ]);
 
   if (leaderboardError || !rows) {
     throw new Error(`Failed to load leaderboard: ${leaderboardError?.message}`);
@@ -50,6 +55,7 @@ export async function loadLeaderboard(): Promise<{
       countryCode: r.country_code,
       gdp: r.gdp,
       rank: r.rank,
+      isVip: r.is_vip,
     })),
     myCountryId: country.id,
     myRank: rank,
@@ -62,6 +68,7 @@ export async function loadLeaderboard(): Promise<{
       countryCode: country.country_code,
       gdp: country.gdp,
       rank,
+      isVip: isVipActive(profile?.vip_expires_at ?? null),
     } satisfies LeaderboardEntry,
   };
 }

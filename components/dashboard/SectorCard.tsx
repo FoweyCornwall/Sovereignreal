@@ -3,6 +3,7 @@ import { computeTrend } from "@/lib/game/gdp";
 import { MUTATION_RARITIES_INFO, getRarityInfo } from "@/lib/game/mutations";
 import { MutationBadge } from "@/components/dashboard/MutationBadge";
 import type { SectorMutation, SectorState } from "@/lib/types/game";
+import type { SectorTheme } from "@/lib/game/cosmetics";
 
 const TREND_ARROW: Record<ReturnType<typeof computeTrend>, string> = {
   up: "▲",
@@ -19,13 +20,17 @@ const TREND_COLOR: Record<ReturnType<typeof computeTrend>, string> = {
 const LEGENDARY_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex(
   (r) => r.rarity === "legendary"
 );
+const EPIC_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex((r) => r.rarity === "epic");
+const MYTHIC_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex((r) => r.rarity === "mythic");
 
 export function SectorCard({
   state,
   mutation,
+  equippedTheme,
 }: {
   state: SectorState;
   mutation?: SectorMutation;
+  equippedTheme?: SectorTheme | null;
 }) {
   const trend = computeTrend(state);
 
@@ -45,6 +50,31 @@ export function SectorCard({
   const rarityIndex = MUTATION_RARITIES_INFO.findIndex((r) => r.rarity === mutation.rarity);
   const isVibrant = rarityIndex >= LEGENDARY_AND_ABOVE_INDEX;
   const isIridescent = info.color === "iridescent";
+
+  if (equippedTheme) {
+    const band =
+      rarityIndex >= MYTHIC_AND_ABOVE_INDEX
+        ? "high"
+        : rarityIndex >= EPIC_AND_ABOVE_INDEX
+          ? "mid"
+          : "low";
+    return (
+      <div
+        className={`flex flex-col gap-1 rounded-xl border-2 px-3 py-2.5 transition-shadow theme-${equippedTheme}-${band}`}
+      >
+        <div className="flex items-center gap-1 min-w-0">
+          <span className="text-sm font-semibold truncate flex-1 min-w-0">
+            {SECTOR_LABELS[state.sector]}
+          </span>
+          <MutationBadge mutation={mutation} />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="tabular-nums text-sm font-semibold">{state.score.toFixed(3)}</span>
+          <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

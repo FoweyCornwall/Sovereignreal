@@ -154,3 +154,30 @@ export async function refreshStore(): Promise<RefreshStoreResult> {
 
   return { ok: true };
 }
+
+export type ClaimVipFreeRestockResult =
+  | { ok: true }
+  | { ok: false; reason: "NOT_VIP" | "ON_COOLDOWN"; retryAt?: string };
+
+export async function claimVipFreeRestock(): Promise<ClaimVipFreeRestockResult> {
+  const supabase = await createClient();
+  const { countryId } = await requireCountryId();
+
+  const { data, error } = await supabase.rpc("claim_vip_free_restock", {
+    p_country_id: countryId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to claim VIP restock: ${error.message}`);
+  }
+
+  const result = data as { ok: boolean; reason?: string; retry_at?: string };
+  if (!result.ok) {
+    if (result.reason === "ON_COOLDOWN") {
+      return { ok: false, reason: "ON_COOLDOWN", retryAt: result.retry_at };
+    }
+    return { ok: false, reason: "NOT_VIP" };
+  }
+
+  return { ok: true };
+}

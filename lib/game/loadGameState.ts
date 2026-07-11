@@ -43,6 +43,9 @@ export async function loadGameState(): Promise<{
   mutations: SectorMutation[];
   credits: number;
   lastDailyClaimAt: string | null;
+  equippedSectorTheme: "ice" | "fire" | null;
+  vipExpiresAt: string | null;
+  lastFreeRestockAt: string | null;
 }> {
   const supabase = await createClient();
 
@@ -89,7 +92,9 @@ export async function loadGameState(): Promise<{
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("credits, last_daily_claim_at")
+    .select(
+      "credits, last_daily_claim_at, equipped_sector_theme, vip_expires_at, last_free_restock_at"
+    )
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -107,7 +112,9 @@ export async function loadGameState(): Promise<{
       acquiredAt: m.acquired_at,
     })),
     credits: profile?.credits ?? 0,
-    lastDailyClaimAt: (profile as { last_daily_claim_at?: string | null } | null)
-      ?.last_daily_claim_at ?? null,
+    lastDailyClaimAt: profile?.last_daily_claim_at ?? null,
+    equippedSectorTheme: (profile?.equipped_sector_theme as "ice" | "fire" | null) ?? null,
+    vipExpiresAt: profile?.vip_expires_at ?? null,
+    lastFreeRestockAt: profile?.last_free_restock_at ?? null,
   };
 }

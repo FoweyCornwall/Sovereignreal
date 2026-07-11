@@ -88,6 +88,9 @@ async function main() {
       gdp_per_sec: 0,
       treasury: 0,
       treasury_regen_per_sec: 0,
+      // ~15% of bots show the VIP tag/gold outline for atmosphere - display
+      // only, grants no actual perk (see 0017_vip.sql).
+      is_vip_bot: Math.random() < 0.15,
     };
   });
 

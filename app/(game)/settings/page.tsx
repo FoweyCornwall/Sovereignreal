@@ -5,6 +5,7 @@ import { DeleteAndRestartButton } from "@/components/settings/DeleteAndRestartBu
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { UsernameForm } from "@/components/settings/UsernameForm";
 import { CreditsPanel } from "@/components/settings/CreditsPanel";
+import { VipPanel } from "@/components/settings/VipPanel";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -15,7 +16,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, credits")
+    .select("username, credits, vip_expires_at")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -35,6 +36,13 @@ export default async function SettingsPage() {
           Credits
         </h2>
         <CreditsPanel credits={profile?.credits ?? 0} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+          VIP
+        </h2>
+        <VipPanel vipExpiresAt={profile?.vip_expires_at ?? null} />
       </div>
 
       <div className="flex flex-col gap-2">
