@@ -42,16 +42,24 @@ export function BattleClient({
           )}
           {recentMatches.map((m) => {
             const won = m.winnerCountryId === countryId;
-            const draw = m.winnerCountryId === null;
+            const draw = m.winReason === "draw";
             const iAmSideA = m.sideACountryId === countryId;
             const opponentName = iAmSideA
               ? m.sideBIsBot
                 ? `${m.sideBName} (Bot)`
                 : m.sideBName
               : m.sideAName;
+            const myBreaks = iAmSideA ? m.sideAConquests : m.sideBConquests;
+            const opponentBreaks = iAmSideA ? m.sideBConquests : m.sideAConquests;
             return (
               <div key={m.id} className="flex items-center justify-between px-4 py-2 text-sm">
-                <span>vs {opponentName}</span>
+                <span>
+                  vs {opponentName}{" "}
+                  <span className="text-zinc-500">
+                    ({myBreaks}-{opponentBreaks}
+                    {m.winReason === "conquest" ? ", conquest" : ""})
+                  </span>
+                </span>
                 <span
                   className={draw ? "text-zinc-500" : won ? "text-emerald-500" : "text-red-500"}
                 >

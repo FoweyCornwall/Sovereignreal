@@ -2,24 +2,36 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { Sector } from "@/lib/game/constants";
 
-export type TileType = "home_a" | "home_b" | "hub" | "oil" | "tech" | "agriculture" | "neutral";
-
-export interface MatchTile {
-  q: number;
-  r: number;
-  tileType: TileType;
-  ownerCountryId: string | null;
-  connected: boolean;
+export interface MatchSectorState {
+  sector: Sector;
+  currentScore: number;
+  mutationMultiplier: number | null;
 }
 
-export interface ClaimResult {
+export interface MatchEvent {
+  id: number;
+  turnNumber: number;
+  attackerCountryId: string | null;
+  targetSector: Sector | null;
+  outcome: "hit" | "miss" | "auto_pass";
+  damage: number;
+  treasurySkim: number;
+  hitChance: number | null;
+}
+
+export interface AttackResult {
   ok: boolean;
   reason?: string;
-  q?: number;
-  r?: number;
-  cost?: number;
+  targetSector?: Sector;
+  outcome?: "hit" | "miss";
+  damage?: number;
+  treasurySkim?: number;
+  hitChance?: number;
 }
+
+export type WinReason = "conquest" | "turn_limit" | "draw";
 
 export interface MatchState {
   matchId: string;
@@ -32,22 +44,22 @@ export interface MatchState {
   turnNumber: number;
   turnsPerSide: number;
   turnDeadline: string;
-  sideAApRemaining: number;
-  sideBApRemaining: number;
-  sideACash: number;
-  sideBCash: number;
-  oilSaturatedUntilTurn: number | null;
-  techSaturatedUntilTurn: number | null;
-  agricultureSaturatedUntilTurn: number | null;
+  sideAConquests: number;
+  sideBConquests: number;
+  sideASkimmed: number;
+  sideBSkimmed: number;
   winnerCountryId: string | null;
   payoutAmount: number | null;
-  tiles: MatchTile[];
+  winReason: WinReason | null;
+  mySectors: MatchSectorState[];
+  opponentSectors: MatchSectorState[];
+  events: MatchEvent[];
 }
 
 export interface MatchStateResponse extends MatchState {
   ok: boolean;
   reason?: string;
-  claimResult?: ClaimResult;
+  attackResult?: AttackResult;
 }
 
 export type FindMatchResult =
@@ -123,39 +135,21 @@ export async function pollMatch(matchId: string): Promise<MatchStateResponse> {
   return data as unknown as MatchStateResponse;
 }
 
-export async function submitClaim(
+export async function submitAttack(
   matchId: string,
-  q: number,
-  r: number
+  targetSector: Sector
 ): Promise<MatchStateResponse> {
   const supabase = await createClient();
   const countryId = await requireCountryId();
 
-  const { data, error } = await supabase.rpc("submit_claim", {
+  const { data, error } = await supabase.rpc("submit_attack", {
     p_match_id: matchId,
     p_country_id: countryId,
-    p_q: q,
-    p_r: r,
+    p_target_sector: targetSector,
   });
 
   if (error) {
-    throw new Error(`Failed to submit claim: ${error.message}`);
-  }
-
-  return data as unknown as MatchStateResponse;
-}
-
-export async function endTurn(matchId: string): Promise<MatchStateResponse> {
-  const supabase = await createClient();
-  const countryId = await requireCountryId();
-
-  const { data, error } = await supabase.rpc("end_turn", {
-    p_match_id: matchId,
-    p_country_id: countryId,
-  });
-
-  if (error) {
-    throw new Error(`Failed to end turn: ${error.message}`);
+    throw new Error(`Failed to submit attack: ${error.message}`);
   }
 
   return data as unknown as MatchStateResponse;
@@ -170,8 +164,9 @@ export interface RecentMatch {
   sideBIsBot: boolean;
   winnerCountryId: string | null;
   payoutAmount: number | null;
-  sideACash: number;
-  sideBCash: number;
+  winReason: WinReason | null;
+  sideAConquests: number;
+  sideBConquests: number;
   completedAt: string | null;
 }
 
@@ -197,8 +192,9 @@ export async function getRecentMatches(): Promise<RecentMatch[]> {
     sideBIsBot: row.side_b_is_bot,
     winnerCountryId: row.winner_country_id,
     payoutAmount: row.payout_amount,
-    sideACash: row.side_a_cash,
-    sideBCash: row.side_b_cash,
+    winReason: row.win_reason as WinReason | null,
+    sideAConquests: row.side_a_conquests,
+    sideBConquests: row.side_b_conquests,
     completedAt: row.completed_at,
   }));
 }

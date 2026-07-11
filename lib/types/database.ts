@@ -69,6 +69,7 @@ export interface Database {
           is_bot: boolean;
           is_vip_bot: boolean;
           identity_updated_at: string | null;
+          bot_sector_tier: string | null;
           last_settled_at: string;
           created_at: string;
         };
@@ -87,6 +88,7 @@ export interface Database {
           is_bot?: boolean;
           is_vip_bot?: boolean;
           identity_updated_at?: string | null;
+          bot_sector_tier?: string | null;
           last_settled_at?: string;
           created_at?: string;
         };
@@ -355,15 +357,13 @@ export interface Database {
           turn_number: number;
           turns_per_side: number;
           turn_deadline: string;
-          side_a_ap_remaining: number;
-          side_b_ap_remaining: number;
-          side_a_cash: number;
-          side_b_cash: number;
-          oil_saturated_until_turn: number | null;
-          tech_saturated_until_turn: number | null;
-          agriculture_saturated_until_turn: number | null;
+          side_a_conquests: number;
+          side_b_conquests: number;
+          side_a_skimmed: number;
+          side_b_skimmed: number;
           winner_country_id: string | null;
           payout_amount: number | null;
+          win_reason: string | null;
           created_at: string;
           completed_at: string | null;
         };
@@ -376,44 +376,41 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["pvp_matches"]["Row"]>;
         Relationships: [];
       };
-      pvp_match_tiles: {
+      pvp_match_sectors: {
         Row: {
           match_id: string;
-          q: number;
-          r: number;
-          tile_type: string;
-          owner_country_id: string | null;
-          connected_a: boolean;
-          connected_b: boolean;
+          side: string;
+          sector: string;
+          current_score: number;
+          mutation_multiplier: number | null;
         };
         Insert: {
           match_id: string;
-          q: number;
-          r: number;
-          tile_type: string;
-          owner_country_id?: string | null;
-          connected_a?: boolean;
-          connected_b?: boolean;
+          side: string;
+          sector: string;
+          current_score: number;
+          mutation_multiplier?: number | null;
         };
-        Update: Partial<Database["public"]["Tables"]["pvp_match_tiles"]["Insert"]>;
+        Update: Partial<Database["public"]["Tables"]["pvp_match_sectors"]["Insert"]>;
         Relationships: [];
       };
       pvp_match_events: {
         Row: {
-          id: string;
+          id: number;
           match_id: string;
           turn_number: number;
-          country_id: string | null;
-          event_type: string;
-          q: number | null;
-          r: number | null;
-          detail: Json | null;
+          attacker_country_id: string | null;
+          target_sector: string | null;
+          outcome: string;
+          damage: number;
+          treasury_skim: number;
+          hit_chance: number | null;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]> & {
           match_id: string;
           turn_number: number;
-          event_type: string;
+          outcome: string;
         };
         Update: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]>;
         Relationships: [];
@@ -536,12 +533,8 @@ export interface Database {
         Args: { p_match_id: string; p_country_id: string };
         Returns: Json;
       };
-      submit_claim: {
-        Args: { p_match_id: string; p_country_id: string; p_q: number; p_r: number };
-        Returns: Json;
-      };
-      end_turn: {
-        Args: { p_match_id: string; p_country_id: string };
+      submit_attack: {
+        Args: { p_match_id: string; p_country_id: string; p_target_sector: string };
         Returns: Json;
       };
       get_recent_matches: {
@@ -555,8 +548,9 @@ export interface Database {
           side_b_is_bot: boolean;
           winner_country_id: string | null;
           payout_amount: number | null;
-          side_a_cash: number;
-          side_b_cash: number;
+          win_reason: string | null;
+          side_a_conquests: number;
+          side_b_conquests: number;
           completed_at: string | null;
         }[];
       };

@@ -12,19 +12,22 @@ import { createAdminClient } from "../lib/supabase/admin";
 import { REAL_WORLD_COUNTRIES } from "../lib/game/countries";
 
 const BOT_COUNT = 80;
-// Hard cap enforced again in drift_bots_if_due() (8,000,000,000) - seeding
-// under that with headroom so drift has room to move bots without any of
-// them starting past the cap.
-// Spread across all rank tiers now that the hard cap is removed - bots
-// look like a plausible mixed leaderboard, not everyone stuck under Gold.
+// Rebalanced to skew meaningfully stronger (~60% Platinum+ vs ~25% before)
+// so bots read as a genuinely active, competitive playerbase both on the
+// leaderboard and as PvP opponents (their sector_state is seeded off this
+// same rank tier - see pvp_ensure_bot_sector_state() in
+// 0021_pvp_siege.sql). Grandmaster's max is widened to 300T (still >3x
+// short of the Transcendent threshold at 1e15) so the single highest bot
+// never reaches the very top tier - keeps #1 on the leaderboard feeling
+// reachable for a real player.
 const GDP_BUCKETS: { weight: number; min: number; max: number }[] = [
-  { weight: 0.30, min: 0, max: 100_000_000 }, // Bronze
-  { weight: 0.25, min: 100_000_000, max: 1_000_000_000 }, // Silver
+  { weight: 0.08, min: 0, max: 100_000_000 }, // Bronze
+  { weight: 0.12, min: 100_000_000, max: 1_000_000_000 }, // Silver
   { weight: 0.20, min: 1_000_000_000, max: 10_000_000_000 }, // Gold
-  { weight: 0.15, min: 10_000_000_000, max: 100_000_000_000 }, // Platinum
-  { weight: 0.07, min: 100_000_000_000, max: 1_000_000_000_000 }, // Diamond
-  { weight: 0.025, min: 1_000_000_000_000, max: 10_000_000_000_000 }, // Master
-  { weight: 0.005, min: 10_000_000_000_000, max: 100_000_000_000_000 }, // Grandmaster
+  { weight: 0.25, min: 10_000_000_000, max: 100_000_000_000 }, // Platinum
+  { weight: 0.20, min: 100_000_000_000, max: 1_000_000_000_000 }, // Diamond
+  { weight: 0.12, min: 1_000_000_000_000, max: 10_000_000_000_000 }, // Master
+  { weight: 0.03, min: 10_000_000_000_000, max: 300_000_000_000_000 }, // Grandmaster
 ];
 
 // Human-shaped usernames: mostly a short handle + a small number, sometimes
