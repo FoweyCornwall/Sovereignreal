@@ -68,6 +68,7 @@ export interface Database {
           treasury_regen_per_sec: number;
           is_bot: boolean;
           is_vip_bot: boolean;
+          identity_updated_at: string | null;
           last_settled_at: string;
           created_at: string;
         };
@@ -85,6 +86,7 @@ export interface Database {
           treasury_regen_per_sec?: number;
           is_bot?: boolean;
           is_vip_bot?: boolean;
+          identity_updated_at?: string | null;
           last_settled_at?: string;
           created_at?: string;
         };
@@ -330,37 +332,90 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["user_cosmetics"]["Insert"]>;
         Relationships: [];
       };
-      battle_queue: {
+      pvp_queue: {
         Row: { country_id: string; rank_tier: string; is_vip: boolean; queued_at: string };
         Insert: { country_id: string; rank_tier: string; is_vip?: boolean; queued_at?: string };
-        Update: Partial<Database["public"]["Tables"]["battle_queue"]["Insert"]>;
+        Update: Partial<Database["public"]["Tables"]["pvp_queue"]["Insert"]>;
         Relationships: [];
       };
-      battles: {
-        Row: {
-          id: string;
-          attacker_id: string;
-          defender_id: string;
-          defender_is_bot: boolean;
-          winner_id: string | null;
-          attacker_power: number;
-          defender_power: number;
-          loot_amount: number;
-          created_at: string;
-        };
-        Insert: Partial<Database["public"]["Tables"]["battles"]["Row"]> & {
-          attacker_id: string;
-          defender_id: string;
-          attacker_power: number;
-          defender_power: number;
-        };
-        Update: Partial<Database["public"]["Tables"]["battles"]["Row"]>;
-        Relationships: [];
-      };
-      battle_cooldowns: {
+      pvp_cooldowns: {
         Row: { attacker_id: string; defender_id: string; last_attacked_at: string };
         Insert: { attacker_id: string; defender_id: string; last_attacked_at?: string };
-        Update: Partial<Database["public"]["Tables"]["battle_cooldowns"]["Insert"]>;
+        Update: Partial<Database["public"]["Tables"]["pvp_cooldowns"]["Insert"]>;
+        Relationships: [];
+      };
+      pvp_matches: {
+        Row: {
+          id: string;
+          side_a_country_id: string;
+          side_b_country_id: string;
+          side_b_is_bot: boolean;
+          status: string;
+          current_turn_country_id: string;
+          turn_number: number;
+          turns_per_side: number;
+          turn_deadline: string;
+          side_a_ap_remaining: number;
+          side_b_ap_remaining: number;
+          side_a_cash: number;
+          side_b_cash: number;
+          oil_saturated_until_turn: number | null;
+          tech_saturated_until_turn: number | null;
+          agriculture_saturated_until_turn: number | null;
+          winner_country_id: string | null;
+          payout_amount: number | null;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["pvp_matches"]["Row"]> & {
+          side_a_country_id: string;
+          side_b_country_id: string;
+          current_turn_country_id: string;
+          turn_deadline: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["pvp_matches"]["Row"]>;
+        Relationships: [];
+      };
+      pvp_match_tiles: {
+        Row: {
+          match_id: string;
+          q: number;
+          r: number;
+          tile_type: string;
+          owner_country_id: string | null;
+          connected_a: boolean;
+          connected_b: boolean;
+        };
+        Insert: {
+          match_id: string;
+          q: number;
+          r: number;
+          tile_type: string;
+          owner_country_id?: string | null;
+          connected_a?: boolean;
+          connected_b?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["pvp_match_tiles"]["Insert"]>;
+        Relationships: [];
+      };
+      pvp_match_events: {
+        Row: {
+          id: string;
+          match_id: string;
+          turn_number: number;
+          country_id: string | null;
+          event_type: string;
+          q: number | null;
+          r: number | null;
+          detail: Json | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]> & {
+          match_id: string;
+          turn_number: number;
+          event_type: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]>;
         Relationships: [];
       };
     };
@@ -455,26 +510,54 @@ export interface Database {
         Args: { p_country_id: string };
         Returns: Json;
       };
-      find_battle: {
+      skip_active_policy: {
+        Args: { p_active_policy_id: string };
+        Returns: Json;
+      };
+      update_country_identity: {
+        Args: {
+          p_country_id: string;
+          p_name: string;
+          p_flag_emoji: string | null;
+          p_flag_style: Json | null;
+          p_country_code: string | null;
+        };
+        Returns: Json;
+      };
+      find_match: {
         Args: { p_country_id: string };
         Returns: Json;
       };
-      cancel_battle_search: {
+      cancel_match_search: {
         Args: { p_country_id: string };
         Returns: undefined;
       };
-      get_recent_battles: {
+      poll_match: {
+        Args: { p_match_id: string; p_country_id: string };
+        Returns: Json;
+      };
+      submit_claim: {
+        Args: { p_match_id: string; p_country_id: string; p_q: number; p_r: number };
+        Returns: Json;
+      };
+      end_turn: {
+        Args: { p_match_id: string; p_country_id: string };
+        Returns: Json;
+      };
+      get_recent_matches: {
         Args: { p_country_id: string; p_limit?: number };
         Returns: {
           id: string;
-          attacker_id: string;
-          attacker_name: string;
-          defender_id: string;
-          defender_name: string;
-          defender_is_bot: boolean;
-          winner_id: string | null;
-          loot_amount: number;
-          created_at: string;
+          side_a_country_id: string;
+          side_a_name: string;
+          side_b_country_id: string;
+          side_b_name: string;
+          side_b_is_bot: boolean;
+          winner_country_id: string | null;
+          payout_amount: number | null;
+          side_a_cash: number;
+          side_b_cash: number;
+          completed_at: string | null;
         }[];
       };
     };

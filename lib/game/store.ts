@@ -5,6 +5,9 @@ export const STORE_SLOT_COUNT = 6;
 export const STORE_RESTOCK_SECONDS = 900; // 15 minutes
 export const STORE_REFRESH_COST_CREDITS = 5;
 
+// Mirrored in skip_active_policy() in supabase/migrations/0019_skip_timer_and_country_identity.sql - keep in sync.
+export const SKIP_TIMER_COST_CREDITS = 5;
+
 // Scarcer at higher tiers. Mirrored in reroll_store_slots() in
 // supabase/migrations/0013_cost_and_stock_rebalance.sql - keep in sync.
 export const STORE_SLOT_QUANTITY_RANGE: Record<Tier, { min: number; max: number }> = {

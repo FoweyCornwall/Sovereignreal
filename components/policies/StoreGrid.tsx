@@ -12,7 +12,7 @@ import {
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { formatCountdown, formatWithCommas } from "@/lib/game/format";
 import { STORE_REFRESH_COST_CREDITS } from "@/lib/game/store";
-import type { SectorState, StoreSlot } from "@/lib/types/game";
+import type { EnactPolicyResult, SectorState, StoreSlot } from "@/lib/types/game";
 
 export function StoreGrid({
   initialSlots,
@@ -41,6 +41,7 @@ export function StoreGrid({
   const [prevStackCounts, setPrevStackCounts] = useState(initialStackCounts);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [enactPending, setEnactPending] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const router = useRouter();
 
@@ -99,9 +100,10 @@ export function StoreGrid({
     });
   }
 
-  function handleEnact(slot: StoreSlot) {
+  async function handleEnact(slot: StoreSlot): Promise<EnactPolicyResult> {
     setMessage(null);
-    startTransition(async () => {
+    setEnactPending(true);
+    try {
       const result = await enactStorePolicy(slot.slotPosition, slot.id);
       if (result.ok) {
         setSlots((prev) =>
@@ -123,7 +125,10 @@ export function StoreGrid({
       } else {
         setMessage("That policy is no longer available.");
       }
-    });
+      return result;
+    } finally {
+      setEnactPending(false);
+    }
   }
 
   return (
@@ -170,7 +175,7 @@ export function StoreGrid({
             gdp={gdp}
             stackCount={stackCounts[slot.id] ?? 0}
             onEnact={handleEnact}
-            pending={pending}
+            pending={pending || enactPending}
           />
         ))}
       </div>

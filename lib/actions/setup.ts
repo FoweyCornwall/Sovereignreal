@@ -66,3 +66,54 @@ export async function createCountry(input: CreateCountryInput) {
 
   redirect("/dashboard");
 }
+
+export type UpdateCountryIdentityResult =
+  | { ok: true }
+  | { ok: false; reason: "NAME_REQUIRED" }
+  | { ok: false; reason: "NOT_FOUND" }
+  | { ok: false; reason: "ON_COOLDOWN"; retryAt: string };
+
+export async function updateCountryIdentity(
+  input: CreateCountryInput
+): Promise<UpdateCountryIdentityResult> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    redirect("/login");
+  }
+
+  const trimmedName = input.name.trim();
+  if (!trimmedName) {
+    return { ok: false, reason: "NAME_REQUIRED" };
+  }
+
+  const { data: country } = await supabase
+    .from("countries")
+    .select("id")
+    .eq("user_id", userData.user.id)
+    .maybeSingle();
+
+  if (!country) {
+    return { ok: false, reason: "NOT_FOUND" };
+  }
+
+  const { data, error } = await supabase.rpc("update_country_identity", {
+    p_country_id: country.id,
+    p_name: trimmedName,
+    p_flag_emoji: input.flagEmoji ?? null,
+    p_flag_style: input.flagStyle ?? null,
+    p_country_code: input.countryCode ?? null,
+  });
+
+  if (error) {
+    throw new Error(`Failed to update country: ${error.message}`);
+  }
+
+  const result = data as { ok: boolean; reason?: string; retry_at?: string };
+  if (!result.ok) {
+    return { ok: false, reason: "ON_COOLDOWN", retryAt: result.retry_at! };
+  }
+
+  return { ok: true };
+}

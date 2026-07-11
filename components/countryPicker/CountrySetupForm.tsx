@@ -6,19 +6,51 @@ import {
   CUSTOM_FLAG_EMOJI_CHOICES,
   REAL_WORLD_COUNTRIES,
 } from "@/lib/game/countries";
-import { createCountry } from "@/lib/actions/setup";
+import { createCountry, type CreateCountryInput } from "@/lib/actions/setup";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 
-type Mode = "real" | "custom";
+type PickerMode = "real" | "custom";
 
-export function CountrySetupForm() {
-  const [mode, setMode] = useState<Mode>("real");
+export interface CountrySetupFormInitialValues {
+  name: string;
+  flagEmoji?: string | null;
+  flagStyle?: { bg: string; pattern?: string } | null;
+  countryCode?: string | null;
+}
+
+async function defaultOnSubmit(input: CreateCountryInput) {
+  const result = await createCountry(input);
+  if (result && !result.ok) {
+    return { ok: false as const, message: result.message ?? "Something went wrong." };
+  }
+  return { ok: true as const };
+}
+
+export function CountrySetupForm({
+  mode = "create",
+  initialValues,
+  onSubmit = defaultOnSubmit,
+}: {
+  mode?: "create" | "update";
+  initialValues?: CountrySetupFormInitialValues;
+  onSubmit?: (input: CreateCountryInput) => Promise<{ ok: boolean; message?: string }>;
+}) {
+  const initialIsCustom = initialValues && !initialValues.countryCode;
+  const [pickerMode, setPickerMode] = useState<PickerMode>(initialIsCustom ? "custom" : "real");
   const [search, setSearch] = useState("");
-  const [selectedIso, setSelectedIso] = useState<string | null>(null);
+  const [selectedIso, setSelectedIso] = useState<string | null>(
+    initialValues?.countryCode ?? null
+  );
 
-  const [customName, setCustomName] = useState("");
-  const [customEmoji, setCustomEmoji] = useState(CUSTOM_FLAG_EMOJI_CHOICES[0]);
-  const [customColor, setCustomColor] = useState(CUSTOM_FLAG_COLOR_CHOICES[0]);
+  const [customName, setCustomName] = useState(
+    initialIsCustom ? initialValues?.name ?? "" : ""
+  );
+  const [customEmoji, setCustomEmoji] = useState(
+    (initialIsCustom && initialValues?.flagEmoji) || CUSTOM_FLAG_EMOJI_CHOICES[0]
+  );
+  const [customColor, setCustomColor] = useState(
+    (initialIsCustom && initialValues?.flagStyle?.bg) || CUSTOM_FLAG_COLOR_CHOICES[0]
+  );
 
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -34,18 +66,18 @@ export function CountrySetupForm() {
   function handleSubmit() {
     setError(null);
 
-    if (mode === "real") {
+    if (pickerMode === "real") {
       if (!selectedCountry) {
         setError("Pick a country first.");
         return;
       }
       startTransition(async () => {
-        const result = await createCountry({
+        const result = await onSubmit({
           name: selectedCountry.name,
           flagEmoji: selectedCountry.flagEmoji,
           countryCode: selectedCountry.iso2,
         });
-        if (result && !result.ok) setError(result.message ?? "Something went wrong.");
+        if (!result.ok) setError(result.message ?? "Something went wrong.");
       });
     } else {
       if (!customName.trim()) {
@@ -53,12 +85,12 @@ export function CountrySetupForm() {
         return;
       }
       startTransition(async () => {
-        const result = await createCountry({
+        const result = await onSubmit({
           name: customName,
           flagEmoji: customEmoji,
           flagStyle: { bg: customColor },
         });
-        if (result && !result.ok) setError(result.message ?? "Something went wrong.");
+        if (!result.ok) setError(result.message ?? "Something went wrong.");
       });
     }
   }
@@ -68,25 +100,25 @@ export function CountrySetupForm() {
       <div className="flex rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
         <button
           type="button"
-          onClick={() => setMode("real")}
+          onClick={() => setPickerMode("real")}
           className={`flex-1 py-2 text-sm font-medium ${
-            mode === "real" ? "bg-brand-500 text-black" : ""
+            pickerMode === "real" ? "bg-brand-500 text-black" : ""
           }`}
         >
           Real-World Country
         </button>
         <button
           type="button"
-          onClick={() => setMode("custom")}
+          onClick={() => setPickerMode("custom")}
           className={`flex-1 py-2 text-sm font-medium ${
-            mode === "custom" ? "bg-brand-500 text-black" : ""
+            pickerMode === "custom" ? "bg-brand-500 text-black" : ""
           }`}
         >
           Custom Country
         </button>
       </div>
 
-      {mode === "real" ? (
+      {pickerMode === "real" ? (
         <div className="flex flex-col gap-2">
           <input
             type="text"
@@ -183,7 +215,13 @@ export function CountrySetupForm() {
         disabled={pending}
         className="rounded-xl bg-brand-500 text-black font-medium py-2.5 shadow-sm shadow-brand-500/20 disabled:opacity-50"
       >
-        {pending ? "Founding your nation…" : "Found Nation"}
+        {pending
+          ? mode === "create"
+            ? "Founding your nation…"
+            : "Saving…"
+          : mode === "create"
+            ? "Found Nation"
+            : "Save Changes"}
       </button>
     </div>
   );

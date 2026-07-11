@@ -155,6 +155,36 @@ export async function refreshStore(): Promise<RefreshStoreResult> {
   return { ok: true };
 }
 
+export type SkipActivePolicyResult =
+  | { ok: true }
+  | { ok: false; reason: "INSUFFICIENT_CREDITS"; shortfall: number }
+  | { ok: false; reason: "ALREADY_DUE" | "NOT_FOUND" };
+
+export async function skipActivePolicy(activePolicyId: string): Promise<SkipActivePolicyResult> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("skip_active_policy", {
+    p_active_policy_id: activePolicyId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to skip timer: ${error.message}`);
+  }
+
+  const result = data as { ok: boolean; reason?: string; shortfall?: number };
+  if (!result.ok) {
+    if (result.reason === "INSUFFICIENT_CREDITS") {
+      return { ok: false, reason: "INSUFFICIENT_CREDITS", shortfall: result.shortfall ?? 0 };
+    }
+    if (result.reason === "ALREADY_DUE") {
+      return { ok: false, reason: "ALREADY_DUE" };
+    }
+    return { ok: false, reason: "NOT_FOUND" };
+  }
+
+  return { ok: true };
+}
+
 export type ClaimVipFreeRestockResult =
   | { ok: true }
   | { ok: false; reason: "NOT_VIP" | "ON_COOLDOWN"; retryAt?: string };

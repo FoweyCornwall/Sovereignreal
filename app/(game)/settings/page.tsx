@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { UsernameForm } from "@/components/settings/UsernameForm";
 import { CreditsPanel } from "@/components/settings/CreditsPanel";
 import { VipPanel } from "@/components/settings/VipPanel";
+import { ChangeCountryPanel } from "@/components/settings/ChangeCountryPanel";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -18,6 +19,12 @@ export default async function SettingsPage() {
     .from("profiles")
     .select("username, credits, vip_expires_at")
     .eq("id", userData.user.id)
+    .maybeSingle();
+
+  const { data: country } = await supabase
+    .from("countries")
+    .select("name, flag_emoji, flag_style, country_code, identity_updated_at")
+    .eq("user_id", userData.user.id)
     .maybeSingle();
 
   return (
@@ -51,6 +58,26 @@ export default async function SettingsPage() {
         </h2>
         <ThemeToggle />
       </div>
+
+      {country && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+            Change Country
+          </h2>
+          <p className="text-xs text-zinc-500">
+            Change your name and flag without resetting your progress. Once every 24 hours.
+          </p>
+          <ChangeCountryPanel
+            initialValues={{
+              name: country.name,
+              flagEmoji: country.flag_emoji,
+              flagStyle: country.flag_style as { bg: string; pattern?: string } | null,
+              countryCode: country.country_code,
+            }}
+            identityUpdatedAt={country.identity_updated_at}
+          />
+        </div>
+      )}
 
       <form action={signOut}>
         <button

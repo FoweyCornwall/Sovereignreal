@@ -3,9 +3,20 @@
 import { useEffect, useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatCountdown, formatDelta } from "@/lib/game/format";
+import { SKIP_TIMER_COST_CREDITS } from "@/lib/game/store";
 import type { ActivePolicy } from "@/lib/types/game";
 
-export function ActivePolicyRow({ policy }: { policy: ActivePolicy }) {
+export function ActivePolicyRow({
+  policy,
+  credits,
+  onSkip,
+  skipPending,
+}: {
+  policy: ActivePolicy;
+  credits: number;
+  onSkip: (activePolicyId: string) => void;
+  skipPending: boolean;
+}) {
   const startedAt = new Date(policy.startedAt).getTime();
   const completesAt = new Date(policy.completesAt).getTime();
   const totalMs = completesAt - startedAt;
@@ -38,11 +49,16 @@ export function ActivePolicyRow({ policy }: { policy: ActivePolicy }) {
         <span className="tabular-nums">{formatCountdown(remainingMs)} remaining</span>
         <button
           type="button"
-          disabled
-          title="Premium feature — coming soon"
-          className="text-xs rounded-full px-2 py-1 border border-zinc-300 dark:border-zinc-700 text-zinc-400 cursor-not-allowed"
+          onClick={() => onSkip(policy.id)}
+          disabled={skipPending || credits < SKIP_TIMER_COST_CREDITS}
+          title={
+            credits < SKIP_TIMER_COST_CREDITS
+              ? "Not enough credits"
+              : `Skip the remaining wait for ${SKIP_TIMER_COST_CREDITS} credits`
+          }
+          className="text-xs rounded-full px-2 py-1 border border-brand-500 text-brand-600 dark:text-brand-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          ⚡ Speed Up (Coming Soon)
+          ⚡ Skip Timer ({SKIP_TIMER_COST_CREDITS} credits)
         </button>
       </div>
 

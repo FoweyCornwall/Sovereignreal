@@ -1,25 +1,62 @@
 "use client";
 
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { ActivePolicyRow } from "@/components/queue/ActivePolicyRow";
-import type { ActivePolicy } from "@/lib/types/game";
+import { MutationBoostRow } from "@/components/queue/MutationBoostRow";
+import { skipActivePolicy } from "@/lib/actions/policies";
+import type { QueueItem } from "@/lib/types/game";
 
-export function ActiveQueueView({ policies }: { policies: ActivePolicy[] }) {
+export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credits: number }) {
   usePollingRefresh();
+  const router = useRouter();
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function handleSkip(activePolicyId: string) {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await skipActivePolicy(activePolicyId);
+      if (result.ok) {
+        router.refresh();
+      } else if (result.reason === "INSUFFICIENT_CREDITS") {
+        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+      } else if (result.reason === "ALREADY_DUE") {
+        setMessage("That policy is already finishing up.");
+      } else {
+        setMessage("That policy is no longer active.");
+      }
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Active Policies</h1>
 
-      {policies.length === 0 ? (
+      {message && (
+        <p className="text-sm rounded-xl bg-zinc-100 dark:bg-zinc-900 px-3 py-2">{message}</p>
+      )}
+
+      {items.length === 0 ? (
         <p className="text-sm text-zinc-500">
           No policies in progress. Head to the Store to enact one.
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {policies.map((p) => (
-            <ActivePolicyRow key={p.id} policy={p} />
-          ))}
+          {items.map((item) =>
+            item.kind === "policy" ? (
+              <ActivePolicyRow
+                key={item.id}
+                policy={item}
+                credits={credits}
+                onSkip={handleSkip}
+                skipPending={pending}
+              />
+            ) : (
+              <MutationBoostRow key={item.id} boost={item} />
+            )
+          )}
         </div>
       )}
     </div>

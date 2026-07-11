@@ -2,7 +2,7 @@ import { loadActiveQueue } from "@/lib/game/loadActiveQueue";
 import { ActiveQueueView } from "@/components/queue/ActiveQueueView";
 
 export default async function QueuePage() {
-  const policies = await loadActiveQueue();
+  const { items, credits } = await loadActiveQueue();
 
-  return <ActiveQueueView policies={policies} />;
+  return <ActiveQueueView items={items} credits={credits} />;
 }

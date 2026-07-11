@@ -9,7 +9,7 @@ import {
   STACK_POSITIVE_FACTOR,
 } from "@/lib/game/store";
 import { computeEffectiveDelta } from "@/lib/game/gdp";
-import type { SectorState, StoreSlot } from "@/lib/types/game";
+import type { EnactPolicyResult, SectorState, StoreSlot } from "@/lib/types/game";
 
 const TIER_COLOR: Record<number, string> = {
   1: "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
@@ -31,7 +31,7 @@ export function PolicyCard({
   sectors: SectorState[];
   gdp: number;
   stackCount: number;
-  onEnact: (slot: StoreSlot) => void;
+  onEnact: (slot: StoreSlot) => Promise<EnactPolicyResult>;
   pending: boolean;
 }) {
   const scoreBySector = new Map(sectors.map((s) => [s.sector, s.score]));
@@ -52,6 +52,7 @@ export function PolicyCard({
   // (React alone doesn't restart a CSS keyframe animation when the same
   // class stays on the element).
   const [enactedTick, setEnactedTick] = useState(0);
+  const [shakeTick, setShakeTick] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -64,9 +65,21 @@ export function PolicyCard({
     el.classList.add("enact-button-pulse");
   }, [enactedTick]);
 
-  function handleClick() {
-    setEnactedTick((t) => t + 1);
-    onEnact(slot);
+  useEffect(() => {
+    if (shakeTick === 0 || !buttonRef.current) return;
+    const el = buttonRef.current;
+    el.classList.remove("enact-button-shake");
+    void el.offsetWidth;
+    el.classList.add("enact-button-shake");
+  }, [shakeTick]);
+
+  async function handleClick() {
+    const result = await onEnact(slot);
+    if (result.ok) {
+      setEnactedTick((t) => t + 1);
+    } else if (result.reason === "INSUFFICIENT_FUNDS" || result.reason === "QUEUE_FULL") {
+      setShakeTick((t) => t + 1);
+    }
   }
 
   return (

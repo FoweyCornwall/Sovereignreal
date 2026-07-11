@@ -126,6 +126,10 @@ export interface MutationBoost {
   expiresAt: string;
 }
 
+export type QueueItem =
+  | ({ kind: "policy" } & ActivePolicy)
+  | ({ kind: "mutation_boost" } & MutationBoost);
+
 export type EnactMutationResult =
   | { ok: true }
   | { ok: false; reason: "INSUFFICIENT_FUNDS"; shortfall: number }
