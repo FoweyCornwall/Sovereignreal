@@ -36,7 +36,8 @@ export async function loadActiveQueue(): Promise<{ items: QueueItem[]; credits: 
       supabase
         .from("mutation_boosts")
         .select("id, target_sectors, proc_multiplier, expires_at")
-        .eq("country_id", country.id),
+        .eq("country_id", country.id)
+        .gt("expires_at", new Date().toISOString()),
       supabase.from("profiles").select("credits").eq("id", userData.user.id).maybeSingle(),
     ]);
 

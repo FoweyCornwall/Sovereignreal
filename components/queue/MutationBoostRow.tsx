@@ -16,6 +16,10 @@ export function MutationBoostRow({ boost }: { boost: MutationBoost }) {
 
   const remainingMs = Math.max(0, expiresAt - now);
 
+  if (remainingMs <= 0) {
+    return null;
+  }
+
   return (
     <div className="mutation-rgb-glow flex flex-col gap-2 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
       <div className="flex items-center justify-between">
