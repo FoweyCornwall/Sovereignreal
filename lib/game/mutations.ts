@@ -10,12 +10,12 @@ export interface RarityInfo {
 
 // Mirrors the weighted roll in settle_country() (0006_mutations.sql).
 export const MUTATION_RARITIES_INFO: RarityInfo[] = [
-  { rarity: "uncommon", label: "Uncommon", weightPercent: 45, multiplier: 2, color: "#4ADE80" },
-  { rarity: "rare", label: "Rare", weightPercent: 33, multiplier: 3, color: "#38BDF8" },
-  { rarity: "epic", label: "Epic", weightPercent: 15, multiplier: 5, color: "#A855F7" },
-  { rarity: "legendary", label: "Legendary", weightPercent: 5.5, multiplier: 10, color: "#F59E0B" },
-  { rarity: "mythic", label: "Mythic", weightPercent: 1, multiplier: 30, color: "#EC4899" },
-  { rarity: "exotic", label: "Exotic", weightPercent: 0.4, multiplier: 50, color: "#22D3EE" },
+  { rarity: "uncommon", label: "Uncommon", weightPercent: 45, multiplier: 2, color: "var(--rarity-uncommon)" },
+  { rarity: "rare", label: "Rare", weightPercent: 33, multiplier: 3, color: "var(--rarity-rare)" },
+  { rarity: "epic", label: "Epic", weightPercent: 15, multiplier: 5, color: "var(--rarity-epic)" },
+  { rarity: "legendary", label: "Legendary", weightPercent: 5.5, multiplier: 10, color: "var(--rarity-legendary)" },
+  { rarity: "mythic", label: "Mythic", weightPercent: 1, multiplier: 30, color: "var(--rarity-mythic)" },
+  { rarity: "exotic", label: "Exotic", weightPercent: 0.4, multiplier: 50, color: "var(--rarity-exotic)" },
   { rarity: "eternal", label: "Eternal", weightPercent: 0.1, multiplier: 100, color: "iridescent" },
 ];
 

@@ -64,9 +64,12 @@ export function MatchmakingPanel({ onMatched }: { onMatched: (matchId: string) =
       {phase === "idle" && (
         <>
           <p className="text-sm text-zinc-500 text-center">
-            Take turns revealing a random sector — whoever&apos;s stronger there wins the round.
-            First to 5 round wins takes the match. You can leave anytime, but it counts as a
-            loss.
+            Battle across 5 random sectors. Win each round by having the higher score. The
+            country with the most round wins after 5 rounds wins the match. Leaving early counts
+            as a loss.
+          </p>
+          <p className="text-xs text-zinc-500 text-center">
+            Win → take 15% of your opponent&apos;s treasury. Draw → nothing changes hands.
           </p>
           <button
             type="button"

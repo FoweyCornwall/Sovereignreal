@@ -40,6 +40,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Satoshi isn't on Google Fonts, so next/font/local self-hosting
+            isn't an option here - loaded via Fontshare's CDN instead. */}
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap"
+          rel="stylesheet"
+        />
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">

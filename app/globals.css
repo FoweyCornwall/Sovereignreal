@@ -5,6 +5,31 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Rank-tier and mutation-rarity badge colors, light-mode variants.
+     The dark-mode overrides below (:root.dark) restore this project's
+     original pale/vivid hexes, which read fine on a black background -
+     these light values are darkened/desaturated equivalents tuned for
+     >=4.5:1 contrast against white (WCAG AA), since the originals were
+     picked with only a dark background in mind and several (Diamond
+     worst, but also Gold/Platinum/Silver/Bronze/Grandmaster and every
+     mutation rarity except the already-dark Epic/Master-adjacent hues)
+     failed AA on light backgrounds. Transcendent/Eternal stay iridescent
+     gradients in both themes - no variable needed for those. */
+  --tier-bronze: #8b6b3d;
+  --tier-silver: #6b7280;
+  --tier-gold: #a16207;
+  --tier-platinum: #0e7490;
+  --tier-diamond: #0369a1;
+  --tier-master: #9d4edd;
+  --tier-grandmaster: #dc2626;
+
+  --rarity-uncommon: #15803d;
+  --rarity-rare: #075985;
+  --rarity-epic: #7e22ce;
+  --rarity-legendary: #b45309;
+  --rarity-mythic: #be185d;
+  --rarity-exotic: #155e75;
 }
 
 @theme inline {
@@ -12,6 +37,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-satoshi: "Satoshi", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --color-brand-300: #b8e2f7;
   --color-brand-400: #a1d8f4;
   --color-brand-500: #89cff0;
@@ -22,12 +48,27 @@
 :root.dark {
   --background: #000000;
   --foreground: #f2f2f2;
+
+  --tier-bronze: #b08d57;
+  --tier-silver: #c0c0c0;
+  --tier-gold: #ffd700;
+  --tier-platinum: #8fdde0;
+  --tier-diamond: #b9f2ff;
+  --tier-master: #9d4edd;
+  --tier-grandmaster: #ff5c7a;
+
+  --rarity-uncommon: #4ade80;
+  --rarity-rare: #38bdf8;
+  --rarity-epic: #a855f7;
+  --rarity-legendary: #f59e0b;
+  --rarity-mythic: #ec4899;
+  --rarity-exotic: #22d3ee;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-satoshi);
 }
 
 .dark body {

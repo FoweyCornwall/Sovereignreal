@@ -85,11 +85,13 @@ export function SectorCard({
         borderColor: isIridescent ? "transparent" : info.color,
         backgroundColor: isIridescent
           ? undefined
-          : `${info.color}${isVibrant ? "33" : "14"}`,
+          : `color-mix(in srgb, ${info.color} ${isVibrant ? "20%" : "8%"}, transparent)`,
         backgroundImage: isIridescent
           ? "linear-gradient(120deg, #ff9a9e33, #a18cd133, #8fd3f433)"
           : undefined,
-        boxShadow: isVibrant ? `0 0 16px 0 ${isIridescent ? "#a18cd1" : info.color}55` : undefined,
+        boxShadow: isVibrant
+          ? `0 0 16px 0 color-mix(in srgb, ${isIridescent ? "#a18cd1" : info.color} 33%, transparent)`
+          : undefined,
       }}
     >
       <div className="flex items-center gap-1 min-w-0">

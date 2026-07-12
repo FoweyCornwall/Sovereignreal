@@ -10,7 +10,9 @@ export function MutationBadge({ mutation }: { mutation: SectorMutation }) {
       className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
       style={{
         color: isIridescent ? "#000" : info.color,
-        backgroundColor: isIridescent ? undefined : `${info.color}22`,
+        backgroundColor: isIridescent
+          ? undefined
+          : `color-mix(in srgb, ${info.color} 13%, transparent)`,
         backgroundImage: isIridescent
           ? "linear-gradient(90deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #8fd3f4)"
           : undefined,
