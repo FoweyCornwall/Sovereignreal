@@ -75,15 +75,18 @@ export const TIER_DURATION_SECONDS: Record<Tier, { min: number; max: number }> =
   5: { min: 43200, max: 172800 }, // capped at 2 days
 };
 
-// Phase 2 rebalance, twice over now (see 0005_tier_cost_rebalance.sql and
-// 0009_gameplay_rebalance.sql) - every tier meaningfully more expensive than
-// launch, tiers 4-5 especially so. Tunable.
+// Documentation only - unwired, actual costs always come from
+// policy_library.base_cost in the DB. Rebalanced repeatedly (0005, 0009,
+// 0013, 0028) - tiers 4-5 in particular are now far above these launch-era
+// numbers even after 0028's -30% cut. Approximate current ranges: T4
+// ~1.3M-2.5M, T5 ~17.9M-34.5M (before the GDP-scaling multiplier in
+// enact_store_policy() pushes the effective price higher still).
 export const TIER_COST_RANGE: Record<Tier, { min: number; max: number }> = {
   1: { min: 40, max: 120 },
   2: { min: 200, max: 600 },
   3: { min: 800, max: 1800 },
-  4: { min: 10000, max: 25000 },
-  5: { min: 42000, max: 102000 },
+  4: { min: 1_337_500, max: 2_499_000 },
+  5: { min: 17_850_000, max: 34_510_000 },
 };
 
 // Defensive floor/ceiling on any single sector's score, applied at settle

@@ -100,13 +100,22 @@ body {
   animation: siege-reveal-pop 350ms ease-out;
 }
 
+@keyframes pvp-pending-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.pvp-pending-pulse {
+  animation: pvp-pending-pulse 1.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-star,
   .mutation-rgb-glow,
   .enact-button-pulse,
   .enact-fly-up,
   .enact-button-shake,
-  .siege-reveal-pop {
+  .siege-reveal-pop,
+  .pvp-pending-pulse {
     animation: none;
   }
 }

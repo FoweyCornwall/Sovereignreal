@@ -13,21 +13,20 @@ export interface CountryIdentity {
   countryCode: string | null;
 }
 
-export interface MatchSectorReveal {
-  sector: Sector;
-  revealed: boolean;
-  sideAScore: number | null;
-  sideBScore: number | null;
-  winnerSide: "a" | "b" | null;
-}
-
-export interface RoundResult {
-  ok: boolean;
-  reason?: string;
-  targetSector?: Sector;
-  sideAScore?: number;
-  sideBScore?: number;
-  winnerSide?: "a" | "b";
+export interface MatchRound {
+  roundNumber: number;
+  resolved: boolean;
+  mySector: Sector | null;
+  opponentSector: Sector | null;
+  sameSector: boolean | null;
+  myScoreOnMySector: number | null;
+  opponentScoreOnMySector: number | null;
+  myScoreOnOpponentSector: number | null;
+  opponentScoreOnOpponentSector: number | null;
+  myPoints: number | null;
+  opponentPoints: number | null;
+  myAutoPicked: boolean | null;
+  opponentAutoPicked: boolean | null;
 }
 
 export interface MatchState {
@@ -36,24 +35,25 @@ export interface MatchState {
   mySide: "a" | "b";
   sideACountryId: string;
   sideBCountryId: string;
-  currentTurnCountryId: string;
-  turnNumber: number;
-  turnDeadline: string;
-  roundsToWin: number;
-  sideAWins: number;
-  sideBWins: number;
+  roundNumber: number;
+  roundsTotal: number;
+  roundDeadline: string;
+  myPendingSector: Sector | null;
+  opponentHasPicked: boolean;
+  myPoints: number;
+  opponentPoints: number;
   winnerCountryId: string | null;
+  isDraw: boolean;
   payoutAmount: number | null;
   forfeited: boolean;
   myIdentity: CountryIdentity;
   opponentIdentity: CountryIdentity;
-  sectors: MatchSectorReveal[];
+  rounds: MatchRound[];
 }
 
 export interface MatchStateResponse extends MatchState {
   ok: boolean;
   reason?: string;
-  roundResult?: RoundResult;
 }
 
 export type FindMatchResult =
@@ -129,18 +129,18 @@ export async function pollMatch(matchId: string): Promise<MatchStateResponse> {
   return data as unknown as MatchStateResponse;
 }
 
-export async function submitAttack(matchId: string, sector: Sector): Promise<MatchStateResponse> {
+export async function submitPick(matchId: string, sector: Sector): Promise<MatchStateResponse> {
   const supabase = await createClient();
   const countryId = await requireCountryId();
 
-  const { data, error } = await supabase.rpc("submit_attack", {
+  const { data, error } = await supabase.rpc("submit_pick", {
     p_match_id: matchId,
     p_country_id: countryId,
     p_sector: sector,
   });
 
   if (error) {
-    throw new Error(`Failed to submit attack: ${error.message}`);
+    throw new Error(`Failed to submit pick: ${error.message}`);
   }
 
   return data as unknown as MatchStateResponse;
@@ -169,10 +169,11 @@ export interface RecentMatch {
   sideBCountryId: string;
   sideBName: string;
   winnerCountryId: string | null;
+  isDraw: boolean;
   payoutAmount: number | null;
   forfeited: boolean;
-  sideAWins: number;
-  sideBWins: number;
+  sideAPoints: number;
+  sideBPoints: number;
   completedAt: string | null;
 }
 
@@ -196,10 +197,11 @@ export async function getRecentMatches(): Promise<RecentMatch[]> {
     sideBCountryId: row.side_b_country_id,
     sideBName: row.side_b_name,
     winnerCountryId: row.winner_country_id,
+    isDraw: row.is_draw,
     payoutAmount: row.payout_amount,
     forfeited: row.forfeited,
-    sideAWins: row.side_a_wins,
-    sideBWins: row.side_b_wins,
+    sideAPoints: row.side_a_points,
+    sideBPoints: row.side_b_points,
     completedAt: row.completed_at,
   }));
 }

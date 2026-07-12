@@ -27,7 +27,7 @@ export function BattleClient({
   return (
     <div className="flex flex-col gap-4">
       {matchId ? (
-        <MatchView matchId={matchId} countryId={countryId} onDone={handleDone} />
+        <MatchView key={matchId} matchId={matchId} countryId={countryId} onDone={handleDone} />
       ) : (
         <MatchmakingPanel onMatched={setMatchId} />
       )}
@@ -41,23 +41,38 @@ export function BattleClient({
             <p className="text-sm text-zinc-500 px-4 py-3">No matches yet.</p>
           )}
           {recentMatches.map((m) => {
-            const won = m.winnerCountryId === countryId;
+            const outcome: "win" | "loss" | "draw" = m.isDraw
+              ? "draw"
+              : m.winnerCountryId === countryId
+                ? "win"
+                : "loss";
             const iAmSideA = m.sideACountryId === countryId;
             const opponentName = iAmSideA ? m.sideBName : m.sideAName;
-            const myWins = iAmSideA ? m.sideAWins : m.sideBWins;
-            const opponentWins = iAmSideA ? m.sideBWins : m.sideAWins;
+            const myPoints = iAmSideA ? m.sideAPoints : m.sideBPoints;
+            const opponentPoints = iAmSideA ? m.sideBPoints : m.sideAPoints;
             return (
               <div key={m.id} className="flex items-center justify-between px-4 py-2 text-sm">
                 <span>
                   vs {opponentName}{" "}
                   <span className="text-zinc-500">
-                    ({myWins}-{opponentWins}
-                    {m.forfeited ? ", forfeit" : ""})
+                    ({myPoints}-{opponentPoints}
+                    {m.isDraw ? ", draw" : m.forfeited ? ", forfeit" : ""})
                   </span>
                 </span>
-                <span className={won ? "text-emerald-500" : "text-red-500"}>
-                  {won ? "+" : "-"}
-                  {m.payoutAmount ? formatWithCommas(m.payoutAmount) : ""}
+                <span
+                  className={
+                    outcome === "draw"
+                      ? "text-zinc-500"
+                      : outcome === "win"
+                        ? "text-emerald-500"
+                        : "text-red-500"
+                  }
+                >
+                  {outcome === "draw"
+                    ? ""
+                    : `${outcome === "win" ? "+" : "-"}${
+                        m.payoutAmount ? formatWithCommas(m.payoutAmount) : ""
+                      }`}
                 </span>
               </div>
             );
