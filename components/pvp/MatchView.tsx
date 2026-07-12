@@ -27,6 +27,7 @@ export function MatchView({
   const [state, setState] = useState<MatchStateResponse | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [flashSector, setFlashSector] = useState<string | null>(null);
   const [flashKey, setFlashKey] = useState(0);
@@ -55,11 +56,20 @@ export function MatchView({
 
   async function poll() {
     if (cancelled.current) return;
-    const result = await pollMatch(matchId);
-    if (cancelled.current) return;
-    applyReveal(result);
-    setState(result);
-    if (result.status === "active") {
+    try {
+      const result = await pollMatch(matchId);
+      if (cancelled.current) return;
+      setError(null);
+      applyReveal(result);
+      setState(result);
+      if (result.status === "active") {
+        scheduleNextPoll();
+      }
+    } catch (err) {
+      if (cancelled.current) return;
+      setError(err instanceof Error ? err.message : "Couldn't reach the match.");
+      // Keep retrying - a transient blip (or a migration that just landed)
+      // self-heals on the next poll without the player having to reload.
       scheduleNextPoll();
     }
   }
@@ -82,8 +92,11 @@ export function MatchView({
     setPending(true);
     try {
       const result = await submitAttack(matchId);
+      setError(null);
       applyReveal(result);
       setState(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Attack failed.");
     } finally {
       setPending(false);
     }
@@ -94,7 +107,10 @@ export function MatchView({
     setPending(true);
     try {
       const result = await forfeitMatch(matchId);
+      setError(null);
       setState(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't leave the match.");
     } finally {
       setPending(false);
       setConfirmingLeave(false);
@@ -103,8 +119,26 @@ export function MatchView({
 
   if (!state) {
     return (
-      <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5">
-        <p className="text-sm text-zinc-500 animate-pulse">Loading match…</p>
+      <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5 flex flex-col items-center gap-3">
+        {error ? (
+          <>
+            <p className="text-sm text-red-500 text-center">{error}</p>
+            <p className="text-xs text-zinc-500 text-center">
+              Still retrying in the background — this usually means the site is running ahead of
+              the database migrations. If it doesn&apos;t recover, make sure the latest migration
+              has been run.
+            </p>
+            <button
+              type="button"
+              onClick={onDone}
+              className="text-xs rounded-full px-4 py-2 border border-black/5 dark:border-white/5"
+            >
+              Back
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-zinc-500 animate-pulse">Loading match…</p>
+        )}
       </div>
     );
   }
@@ -177,6 +211,7 @@ export function MatchView({
         </div>
 
         {lastRoundMessage && <p className="text-xs text-zinc-500 text-center">{lastRoundMessage}</p>}
+        {error && <p className="text-xs text-red-500 text-center">{error}</p>}
 
         <div className="flex items-center gap-2">
           {isMyTurn && (
