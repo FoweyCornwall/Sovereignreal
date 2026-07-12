@@ -22,7 +22,9 @@ export const STORE_SLOT_QUANTITY_RANGE: Record<Tier, { min: number; max: number 
 // simulate other players buying even when the store is quiet. Tunable.
 export const STORE_DECAY_CHANCE_PER_MINUTE = 0.15;
 
-export const MAX_ACTIVE_POLICIES = 5;
+// Mirrored in enact_store_policy()/enact_mutation_item() in
+// supabase/migrations/0025_queue_cap_seven.sql - keep in sync (VIP cap there is 14).
+export const MAX_ACTIVE_POLICIES = 7;
 
 // Stacking: each additional enactment of the same policy applies these
 // factors, compounding per stack (positive^N, negative^N).

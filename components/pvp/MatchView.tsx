@@ -9,7 +9,7 @@ import {
 } from "@/lib/actions/pvpMatch";
 import { SiegeRing } from "@/components/pvp/SiegeRing";
 import { CountryFlag } from "@/components/ui/CountryFlag";
-import { SECTOR_LABELS } from "@/lib/game/constants";
+import { SECTOR_LABELS, type Sector } from "@/lib/game/constants";
 import { formatWithCommas } from "@/lib/game/format";
 
 const POLL_INTERVAL_MS = 1200;
@@ -87,11 +87,11 @@ export function MatchView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
-  async function handleAttack() {
+  async function handleAttack(sector: Sector) {
     if (pending) return;
     setPending(true);
     try {
-      const result = await submitAttack(matchId);
+      const result = await submitAttack(matchId, sector);
       setError(null);
       applyReveal(result);
       setState(result);
@@ -213,17 +213,13 @@ export function MatchView({
         {lastRoundMessage && <p className="text-xs text-zinc-500 text-center">{lastRoundMessage}</p>}
         {error && <p className="text-xs text-red-500 text-center">{error}</p>}
 
+        {isMyTurn && (
+          <p className="text-xs text-center text-brand-500 font-medium">
+            {pending ? "Attacking…" : "Choose a sector below to attack"}
+          </p>
+        )}
+
         <div className="flex items-center gap-2">
-          {isMyTurn && (
-            <button
-              type="button"
-              onClick={handleAttack}
-              disabled={pending}
-              className="flex-1 rounded-xl bg-brand-500 text-black font-medium py-2.5 disabled:opacity-50"
-            >
-              Attack
-            </button>
-          )}
           {confirmingLeave ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-zinc-500">Leave and forfeit?</span>
@@ -261,6 +257,8 @@ export function MatchView({
           mySide={state.mySide}
           flashSector={flashSector}
           flashKey={flashKey}
+          selectable={isMyTurn && !pending}
+          onSectorClick={handleAttack}
         />
       </div>
     </div>

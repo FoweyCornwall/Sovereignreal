@@ -7,7 +7,7 @@ import { VipBadge } from "@/components/ui/VipBadge";
 
 const PERKS = [
   "Daily reward +15 credits (instead of +5)",
-  "2x active-policy queue slots (10 instead of 5)",
+  "2x active-policy queue slots (14 instead of 7)",
   "Free personal store restock every 5 minutes",
   "1.5x mutation proc chance",
   "Priority PvP matchmaking",

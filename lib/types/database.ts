@@ -515,7 +515,7 @@ export interface Database {
         Returns: Json;
       };
       submit_attack: {
-        Args: { p_match_id: string; p_country_id: string };
+        Args: { p_match_id: string; p_country_id: string; p_sector: string };
         Returns: Json;
       };
       forfeit_match: {

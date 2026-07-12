@@ -9,6 +9,8 @@ export function ShieldTile({
   opponentScore,
   iWon,
   flashKey,
+  selectable,
+  onSelect,
 }: {
   sector: Sector;
   revealed: boolean;
@@ -16,8 +18,22 @@ export function ShieldTile({
   opponentScore: number | null;
   iWon: boolean | null;
   flashKey: number;
+  selectable?: boolean;
+  onSelect?: () => void;
 }) {
   if (!revealed) {
+    if (selectable) {
+      return (
+        <button
+          type="button"
+          onClick={onSelect}
+          className="flex flex-col items-center gap-1 rounded-full border-2 border-dashed border-brand-500 px-2 py-2.5 text-center cursor-pointer hover:bg-brand-500/10 active:scale-95 transition"
+        >
+          <span className="text-[10px] font-medium truncate">{SECTOR_LABELS[sector]}</span>
+          <span className="text-lg">❔</span>
+        </button>
+      );
+    }
     return (
       <div className="flex flex-col items-center gap-1 rounded-full border-2 border-dashed border-zinc-300 dark:border-zinc-700 px-2 py-2.5 text-center opacity-70">
         <span className="text-[10px] font-medium truncate">{SECTOR_LABELS[sector]}</span>

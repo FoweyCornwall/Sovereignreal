@@ -24,7 +24,7 @@ export function MutationShop({ items, gdp }: { items: MutationItem[]; gdp: numbe
       } else if (result.reason === "INSUFFICIENT_FUNDS") {
         setMessage(`Not enough treasury — you need ${formatWithCommas(result.shortfall)} more.`);
       } else if (result.reason === "QUEUE_FULL") {
-        setMessage("You already have 5 things in progress — wait for one to finish.");
+        setMessage("You already have 7 things in progress — wait for one to finish.");
       } else {
         setMessage("That item is no longer available.");
       }

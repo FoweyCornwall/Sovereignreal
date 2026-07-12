@@ -129,13 +129,14 @@ export async function pollMatch(matchId: string): Promise<MatchStateResponse> {
   return data as unknown as MatchStateResponse;
 }
 
-export async function submitAttack(matchId: string): Promise<MatchStateResponse> {
+export async function submitAttack(matchId: string, sector: Sector): Promise<MatchStateResponse> {
   const supabase = await createClient();
   const countryId = await requireCountryId();
 
   const { data, error } = await supabase.rpc("submit_attack", {
     p_match_id: matchId,
     p_country_id: countryId,
+    p_sector: sector,
   });
 
   if (error) {

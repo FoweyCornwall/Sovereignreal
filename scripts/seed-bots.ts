@@ -125,6 +125,24 @@ function randomFunnyUsername(): string {
   return Math.random() < 0.3 ? `${base}${Math.floor(Math.random() * 99) + 1}` : base;
 }
 
+// Neither generator's random space is anywhere near collision-free at 270
+// bots (the funny-username bare bucket alone guarantees a repeat by
+// pigeonhole - only 25 possible values). Regenerate on collision, bounded,
+// with a last-resort numeric suffix so this always terminates.
+function uniqueUsername(generate: () => string, used: Set<string>): string {
+  let candidate = generate();
+  let attempts = 0;
+  while (used.has(candidate.toLowerCase()) && attempts < 50) {
+    candidate = generate();
+    attempts++;
+  }
+  if (used.has(candidate.toLowerCase())) {
+    candidate = `${candidate}_${used.size}`;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
 function pickWeightedBucket<T extends { weight: number }>(buckets: T[]): T {
   const roll = Math.random();
   let cumulative = 0;
@@ -139,7 +157,8 @@ function buildBot(
   buckets: { weight: number; min: number; max: number; vipChance: number }[],
   showOnLeaderboard: boolean,
   realWorldPool: (typeof REAL_WORLD_COUNTRIES)[number][],
-  poolIndex: number
+  poolIndex: number,
+  usedUsernames: Set<string>
 ) {
   const bucket = pickWeightedBucket(buckets);
   const gdp = bucket.min + Math.random() * (bucket.max - bucket.min);
@@ -151,14 +170,14 @@ function buildBot(
         flag_emoji: CUSTOM_FLAG_EMOJI[Math.floor(Math.random() * CUSTOM_FLAG_EMOJI.length)],
         flag_style: { bg: CUSTOM_FLAG_COLORS[Math.floor(Math.random() * CUSTOM_FLAG_COLORS.length)] },
         country_code: null as string | null,
-        username: randomFunnyUsername(),
+        username: uniqueUsername(randomFunnyUsername, usedUsernames),
       }
     : {
         name: realWorldPool[poolIndex % realWorldPool.length].name,
         flag_emoji: realWorldPool[poolIndex % realWorldPool.length].flagEmoji,
         flag_style: null,
         country_code: realWorldPool[poolIndex % realWorldPool.length].iso2,
-        username: randomUsername(),
+        username: uniqueUsername(randomUsername, usedUsernames),
       };
 
   return {
@@ -182,12 +201,13 @@ async function main() {
   const supabase = createAdminClient();
 
   const shuffledCountries = [...REAL_WORLD_COUNTRIES].sort(() => Math.random() - 0.5);
+  const usedUsernames = new Set<string>();
 
   const visibleBots = Array.from({ length: VISIBLE_BOT_COUNT }, (_, i) =>
-    buildBot(VISIBLE_GDP_BUCKETS, true, shuffledCountries, i)
+    buildBot(VISIBLE_GDP_BUCKETS, true, shuffledCountries, i, usedUsernames)
   );
   const hiddenBots = Array.from({ length: HIDDEN_BOT_COUNT }, (_, i) =>
-    buildBot(HIDDEN_GDP_BUCKETS, false, shuffledCountries, VISIBLE_BOT_COUNT + i)
+    buildBot(HIDDEN_GDP_BUCKETS, false, shuffledCountries, VISIBLE_BOT_COUNT + i, usedUsernames)
   );
 
   const bots = [...visibleBots, ...hiddenBots];
