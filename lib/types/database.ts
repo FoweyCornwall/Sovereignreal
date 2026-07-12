@@ -70,6 +70,7 @@ export interface Database {
           is_vip_bot: boolean;
           identity_updated_at: string | null;
           bot_sector_tier: string | null;
+          show_on_leaderboard: boolean;
           last_settled_at: string;
           created_at: string;
         };
@@ -89,6 +90,7 @@ export interface Database {
           is_vip_bot?: boolean;
           identity_updated_at?: string | null;
           bot_sector_tier?: string | null;
+          show_on_leaderboard?: boolean;
           last_settled_at?: string;
           created_at?: string;
         };
@@ -355,15 +357,13 @@ export interface Database {
           status: string;
           current_turn_country_id: string;
           turn_number: number;
-          turns_per_side: number;
           turn_deadline: string;
-          side_a_conquests: number;
-          side_b_conquests: number;
-          side_a_skimmed: number;
-          side_b_skimmed: number;
+          rounds_to_win: number;
+          side_a_wins: number;
+          side_b_wins: number;
           winner_country_id: string | null;
           payout_amount: number | null;
-          win_reason: string | null;
+          forfeited_by: string | null;
           created_at: string;
           completed_at: string | null;
         };
@@ -376,41 +376,22 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["pvp_matches"]["Row"]>;
         Relationships: [];
       };
-      pvp_match_sectors: {
-        Row: {
-          match_id: string;
-          side: string;
-          sector: string;
-          current_score: number;
-          mutation_multiplier: number | null;
-        };
-        Insert: {
-          match_id: string;
-          side: string;
-          sector: string;
-          current_score: number;
-          mutation_multiplier?: number | null;
-        };
-        Update: Partial<Database["public"]["Tables"]["pvp_match_sectors"]["Insert"]>;
-        Relationships: [];
-      };
       pvp_match_events: {
         Row: {
           id: number;
           match_id: string;
           turn_number: number;
-          attacker_country_id: string | null;
+          event_type: string;
           target_sector: string | null;
-          outcome: string;
-          damage: number;
-          treasury_skim: number;
-          hit_chance: number | null;
+          side_a_score: number | null;
+          side_b_score: number | null;
+          winner_side: string | null;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]> & {
           match_id: string;
           turn_number: number;
-          outcome: string;
+          event_type: string;
         };
         Update: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]>;
         Relationships: [];
@@ -534,7 +515,11 @@ export interface Database {
         Returns: Json;
       };
       submit_attack: {
-        Args: { p_match_id: string; p_country_id: string; p_target_sector: string };
+        Args: { p_match_id: string; p_country_id: string };
+        Returns: Json;
+      };
+      forfeit_match: {
+        Args: { p_match_id: string; p_country_id: string };
         Returns: Json;
       };
       get_recent_matches: {
@@ -545,12 +530,11 @@ export interface Database {
           side_a_name: string;
           side_b_country_id: string;
           side_b_name: string;
-          side_b_is_bot: boolean;
           winner_country_id: string | null;
           payout_amount: number | null;
-          win_reason: string | null;
-          side_a_conquests: number;
-          side_b_conquests: number;
+          forfeited: boolean;
+          side_a_wins: number;
+          side_b_wins: number;
           completed_at: string | null;
         }[];
       };

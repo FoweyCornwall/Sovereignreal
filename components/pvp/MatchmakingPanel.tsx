@@ -64,9 +64,9 @@ export function MatchmakingPanel({ onMatched }: { onMatched: (matchId: string) =
       {phase === "idle" && (
         <>
           <p className="text-sm text-zinc-500 text-center">
-            Take turns striking your opponent&apos;s sectors — the stronger a sector, the harder
-            it is to crack. Break 4 to conquer them, or wear them down before the clock runs out.
-            Fight a live opponent, or a bot if no one&apos;s around.
+            Take turns revealing a random sector — whoever&apos;s stronger there wins the round.
+            First to 5 round wins takes the match. You can leave anytime, but it counts as a
+            loss.
           </p>
           <button
             type="button"

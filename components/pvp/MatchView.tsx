@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { pollMatch, submitAttack, type MatchStateResponse } from "@/lib/actions/pvpMatch";
-import { SiegeRing, type FlashTarget } from "@/components/pvp/SiegeRing";
+import {
+  pollMatch,
+  submitAttack,
+  forfeitMatch,
+  type MatchStateResponse,
+} from "@/lib/actions/pvpMatch";
+import { SiegeRing } from "@/components/pvp/SiegeRing";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatWithCommas } from "@/lib/game/format";
-import type { Sector } from "@/lib/game/constants";
 
 const POLL_INTERVAL_MS = 1200;
 const TICK_MS = 250;
@@ -21,43 +27,25 @@ export function MatchView({
   const [state, setState] = useState<MatchStateResponse | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [flashTarget, setFlashTarget] = useState<FlashTarget | null>(null);
-  const [shakeKey, setShakeKey] = useState(0);
-  const lastSeenEventId = useRef<number | null>(null);
-  const flashCounter = useRef(0);
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const [flashSector, setFlashSector] = useState<string | null>(null);
+  const [flashKey, setFlashKey] = useState(0);
+  const [lastRoundMessage, setLastRoundMessage] = useState<string | null>(null);
+  const seenRoundSectors = useRef<Set<string>>(new Set());
   const pollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelled = useRef(false);
 
-  function applyNewEvents(next: MatchStateResponse) {
-    const events = [...next.events].sort((a, b) => a.id - b.id);
-    if (lastSeenEventId.current === null) {
-      lastSeenEventId.current = events.length > 0 ? events[events.length - 1].id : 0;
-      return;
-    }
-
-    const fresh = events.filter((e) => e.id > lastSeenEventId.current!);
-    if (fresh.length === 0) return;
-
-    const latest = fresh[fresh.length - 1];
-    lastSeenEventId.current = latest.id;
-
-    if (latest.outcome === "auto_pass" || !latest.targetSector) return;
-
-    const attackerIsMe = latest.attackerCountryId === countryId;
-    const side: "mine" | "opponent" = attackerIsMe ? "opponent" : "mine";
-    flashCounter.current += 1;
-    setFlashTarget({
-      side,
-      sector: latest.targetSector,
-      outcome: latest.outcome,
-      key: flashCounter.current,
-    });
-
-    const targetList = side === "mine" ? next.mySectors : next.opponentSectors;
-    const targetNowBroken = targetList.find((s) => s.sector === latest.targetSector)?.currentScore === 0;
-    if (latest.outcome === "hit" && targetNowBroken) {
-      setShakeKey((k) => k + 1);
+  function applyReveal(next: MatchStateResponse) {
+    for (const s of next.sectors) {
+      if (s.revealed && !seenRoundSectors.current.has(s.sector)) {
+        seenRoundSectors.current.add(s.sector);
+        setFlashSector(s.sector);
+        setFlashKey((k) => k + 1);
+        const iWon = s.winnerSide === next.mySide;
+        setLastRoundMessage(
+          `${SECTOR_LABELS[s.sector]}: you ${iWon ? "won" : "lost"} (${s.sideAScore?.toFixed(1)} vs ${s.sideBScore?.toFixed(1)})`
+        );
+      }
     }
   }
 
@@ -69,7 +57,7 @@ export function MatchView({
     if (cancelled.current) return;
     const result = await pollMatch(matchId);
     if (cancelled.current) return;
-    applyNewEvents(result);
+    applyReveal(result);
     setState(result);
     if (result.status === "active") {
       scheduleNextPoll();
@@ -78,7 +66,7 @@ export function MatchView({
 
   useEffect(() => {
     cancelled.current = false;
-    lastSeenEventId.current = null;
+    seenRoundSectors.current = new Set();
     poll();
     const tickInterval = setInterval(() => setNow(Date.now()), TICK_MS);
     return () => {
@@ -89,19 +77,27 @@ export function MatchView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
-  async function handleAttack(sector: Sector) {
+  async function handleAttack() {
     if (pending) return;
     setPending(true);
-    setMessage(null);
     try {
-      const result = await submitAttack(matchId, sector);
-      applyNewEvents(result);
+      const result = await submitAttack(matchId);
+      applyReveal(result);
       setState(result);
-      if (result.attackResult && !result.attackResult.ok) {
-        setMessage(attackErrorMessage(result.attackResult.reason));
-      }
     } finally {
       setPending(false);
+    }
+  }
+
+  async function handleLeave() {
+    if (pending) return;
+    setPending(true);
+    try {
+      const result = await forfeitMatch(matchId);
+      setState(result);
+    } finally {
+      setPending(false);
+      setConfirmingLeave(false);
     }
   }
 
@@ -116,30 +112,26 @@ export function MatchView({
   const isMyTurn = state.status === "active" && state.currentTurnCountryId === countryId;
   const remainingMs = Math.max(0, new Date(state.turnDeadline).getTime() - now);
   const remainingSeconds = Math.ceil(remainingMs / 1000);
-  const myConquests = state.mySide === "a" ? state.sideAConquests : state.sideBConquests;
-  const opponentConquests = state.mySide === "a" ? state.sideBConquests : state.sideAConquests;
+  const myWins = state.mySide === "a" ? state.sideAWins : state.sideBWins;
+  const opponentWins = state.mySide === "a" ? state.sideBWins : state.sideAWins;
 
   if (state.status === "completed") {
     const won = state.winnerCountryId === countryId;
-    const draw = state.winReason === "draw";
 
     return (
       <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5 flex flex-col items-center gap-4">
-        <p
-          className={`text-lg font-bold ${
-            draw ? "text-zinc-500" : won ? "text-emerald-500" : "text-red-500"
-          }`}
-        >
-          {draw ? "Draw" : won ? "Victory!" : "Defeat"}
+        <p className={`text-lg font-bold ${won ? "text-emerald-500" : "text-red-500"}`}>
+          {won ? "Victory!" : "Defeat"}
         </p>
         <p className="text-sm text-zinc-500 text-center">
-          Sectors broken: {myConquests} vs {opponentConquests}
-          {!draw && state.payoutAmount
+          {myWins}-{opponentWins} vs {state.opponentIdentity.name}
+          {state.forfeited &&
+            (won ? " — they left the match." : " — you left the match.")}
+          {state.payoutAmount
             ? won
-              ? ` — you looted ${formatWithCommas(state.payoutAmount)} treasury.`
-              : ` — you lost ${formatWithCommas(state.payoutAmount)} treasury.`
+              ? ` You looted ${formatWithCommas(state.payoutAmount)} treasury.`
+              : ` You lost ${formatWithCommas(state.payoutAmount)} treasury.`
             : ""}
-          {state.winReason === "conquest" && " (conquest)"}
         </p>
         <button
           type="button"
@@ -155,54 +147,87 @@ export function MatchView({
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4 flex flex-col gap-3">
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-zinc-500">Your Breaks</p>
-            <p className="font-semibold">{myConquests}/4</p>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-zinc-500">vs</span>
+          <div className="flex items-center gap-2">
+            <CountryFlag
+              countryCode={state.opponentIdentity.countryCode}
+              flagEmoji={state.opponentIdentity.flagEmoji}
+              flagStyle={state.opponentIdentity.flagStyle}
+              name={state.opponentIdentity.name}
+            />
+            <span className="font-medium">{state.opponentIdentity.name}</span>
+            {state.opponentIdentity.username && (
+              <span className="text-xs text-zinc-500">@{state.opponentIdentity.username}</span>
+            )}
           </div>
-          <div>
-            <p className="text-xs text-zinc-500">Opponent Breaks</p>
-            <p className="font-semibold">{opponentConquests}/4</p>
-          </div>
-          <div>
-            <p className="text-xs text-zinc-500">Turn</p>
-            <p className="font-semibold">
-              {state.turnNumber}/{state.turnsPerSide * 2}
-            </p>
-          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-4 text-2xl font-bold tabular-nums">
+          <span className="text-brand-500">{myWins}</span>
+          <span className="text-sm text-zinc-500 font-normal">first to {state.roundsToWin}</span>
+          <span className="text-red-500">{opponentWins}</span>
         </div>
 
         <div className="flex items-center justify-between text-sm">
           <span className={isMyTurn ? "text-brand-500 font-medium" : "text-zinc-500"}>
-            {isMyTurn ? "Your turn — pick a sector to attack" : "Opponent's turn"}
+            {isMyTurn ? "Your turn" : "Opponent's turn"}
           </span>
           <span className="tabular-nums text-zinc-500">{remainingSeconds}s</span>
         </div>
 
-        {message && <p className="text-xs text-red-500">{message}</p>}
+        {lastRoundMessage && <p className="text-xs text-zinc-500 text-center">{lastRoundMessage}</p>}
+
+        <div className="flex items-center gap-2">
+          {isMyTurn && (
+            <button
+              type="button"
+              onClick={handleAttack}
+              disabled={pending}
+              className="flex-1 rounded-xl bg-brand-500 text-black font-medium py-2.5 disabled:opacity-50"
+            >
+              Attack
+            </button>
+          )}
+          {confirmingLeave ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500">Leave and forfeit?</span>
+              <button
+                type="button"
+                onClick={handleLeave}
+                disabled={pending}
+                className="text-xs rounded-full px-3 py-1.5 bg-red-500 text-white disabled:opacity-50"
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingLeave(false)}
+                className="text-xs rounded-full px-3 py-1.5 border border-black/5 dark:border-white/5"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingLeave(true)}
+              className="text-xs rounded-full px-3 py-1.5 border border-black/5 dark:border-white/5 text-zinc-500"
+            >
+              Leave Match
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
         <SiegeRing
-          mySectors={state.mySectors}
-          opponentSectors={state.opponentSectors}
-          canAttack={isMyTurn && !pending}
-          onAttack={handleAttack}
-          flashTarget={flashTarget}
-          shakeKey={shakeKey}
+          sectors={state.sectors}
+          mySide={state.mySide}
+          flashSector={flashSector}
+          flashKey={flashKey}
         />
       </div>
     </div>
   );
-}
-
-function attackErrorMessage(reason?: string): string {
-  switch (reason) {
-    case "SECTOR_ALREADY_BROKEN":
-      return "That sector's already broken — pick another.";
-    case "INVALID_SECTOR":
-      return "That's not a valid sector.";
-    default:
-      return "Couldn't attack that sector.";
-  }
 }

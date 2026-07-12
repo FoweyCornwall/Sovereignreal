@@ -42,29 +42,22 @@ export function BattleClient({
           )}
           {recentMatches.map((m) => {
             const won = m.winnerCountryId === countryId;
-            const draw = m.winReason === "draw";
             const iAmSideA = m.sideACountryId === countryId;
-            const opponentName = iAmSideA
-              ? m.sideBIsBot
-                ? `${m.sideBName} (Bot)`
-                : m.sideBName
-              : m.sideAName;
-            const myBreaks = iAmSideA ? m.sideAConquests : m.sideBConquests;
-            const opponentBreaks = iAmSideA ? m.sideBConquests : m.sideAConquests;
+            const opponentName = iAmSideA ? m.sideBName : m.sideAName;
+            const myWins = iAmSideA ? m.sideAWins : m.sideBWins;
+            const opponentWins = iAmSideA ? m.sideBWins : m.sideAWins;
             return (
               <div key={m.id} className="flex items-center justify-between px-4 py-2 text-sm">
                 <span>
                   vs {opponentName}{" "}
                   <span className="text-zinc-500">
-                    ({myBreaks}-{opponentBreaks}
-                    {m.winReason === "conquest" ? ", conquest" : ""})
+                    ({myWins}-{opponentWins}
+                    {m.forfeited ? ", forfeit" : ""})
                   </span>
                 </span>
-                <span
-                  className={draw ? "text-zinc-500" : won ? "text-emerald-500" : "text-red-500"}
-                >
-                  {draw ? "Draw" : won ? "+" : "-"}
-                  {!draw && m.payoutAmount ? formatWithCommas(m.payoutAmount) : ""}
+                <span className={won ? "text-emerald-500" : "text-red-500"}>
+                  {won ? "+" : "-"}
+                  {m.payoutAmount ? formatWithCommas(m.payoutAmount) : ""}
                 </span>
               </div>
             );

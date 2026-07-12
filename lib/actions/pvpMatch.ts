@@ -4,34 +4,31 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { Sector } from "@/lib/game/constants";
 
-export interface MatchSectorState {
+export interface CountryIdentity {
+  countryId: string;
+  name: string;
+  username: string | null;
+  flagEmoji: string | null;
+  flagStyle: { bg: string; pattern?: string } | null;
+  countryCode: string | null;
+}
+
+export interface MatchSectorReveal {
   sector: Sector;
-  currentScore: number;
-  mutationMultiplier: number | null;
+  revealed: boolean;
+  sideAScore: number | null;
+  sideBScore: number | null;
+  winnerSide: "a" | "b" | null;
 }
 
-export interface MatchEvent {
-  id: number;
-  turnNumber: number;
-  attackerCountryId: string | null;
-  targetSector: Sector | null;
-  outcome: "hit" | "miss" | "auto_pass";
-  damage: number;
-  treasurySkim: number;
-  hitChance: number | null;
-}
-
-export interface AttackResult {
+export interface RoundResult {
   ok: boolean;
   reason?: string;
   targetSector?: Sector;
-  outcome?: "hit" | "miss";
-  damage?: number;
-  treasurySkim?: number;
-  hitChance?: number;
+  sideAScore?: number;
+  sideBScore?: number;
+  winnerSide?: "a" | "b";
 }
-
-export type WinReason = "conquest" | "turn_limit" | "draw";
 
 export interface MatchState {
   matchId: string;
@@ -39,27 +36,24 @@ export interface MatchState {
   mySide: "a" | "b";
   sideACountryId: string;
   sideBCountryId: string;
-  sideBIsBot: boolean;
   currentTurnCountryId: string;
   turnNumber: number;
-  turnsPerSide: number;
   turnDeadline: string;
-  sideAConquests: number;
-  sideBConquests: number;
-  sideASkimmed: number;
-  sideBSkimmed: number;
+  roundsToWin: number;
+  sideAWins: number;
+  sideBWins: number;
   winnerCountryId: string | null;
   payoutAmount: number | null;
-  winReason: WinReason | null;
-  mySectors: MatchSectorState[];
-  opponentSectors: MatchSectorState[];
-  events: MatchEvent[];
+  forfeited: boolean;
+  myIdentity: CountryIdentity;
+  opponentIdentity: CountryIdentity;
+  sectors: MatchSectorReveal[];
 }
 
 export interface MatchStateResponse extends MatchState {
   ok: boolean;
   reason?: string;
-  attackResult?: AttackResult;
+  roundResult?: RoundResult;
 }
 
 export type FindMatchResult =
@@ -135,21 +129,33 @@ export async function pollMatch(matchId: string): Promise<MatchStateResponse> {
   return data as unknown as MatchStateResponse;
 }
 
-export async function submitAttack(
-  matchId: string,
-  targetSector: Sector
-): Promise<MatchStateResponse> {
+export async function submitAttack(matchId: string): Promise<MatchStateResponse> {
   const supabase = await createClient();
   const countryId = await requireCountryId();
 
   const { data, error } = await supabase.rpc("submit_attack", {
     p_match_id: matchId,
     p_country_id: countryId,
-    p_target_sector: targetSector,
   });
 
   if (error) {
     throw new Error(`Failed to submit attack: ${error.message}`);
+  }
+
+  return data as unknown as MatchStateResponse;
+}
+
+export async function forfeitMatch(matchId: string): Promise<MatchStateResponse> {
+  const supabase = await createClient();
+  const countryId = await requireCountryId();
+
+  const { data, error } = await supabase.rpc("forfeit_match", {
+    p_match_id: matchId,
+    p_country_id: countryId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to forfeit match: ${error.message}`);
   }
 
   return data as unknown as MatchStateResponse;
@@ -161,12 +167,11 @@ export interface RecentMatch {
   sideAName: string;
   sideBCountryId: string;
   sideBName: string;
-  sideBIsBot: boolean;
   winnerCountryId: string | null;
   payoutAmount: number | null;
-  winReason: WinReason | null;
-  sideAConquests: number;
-  sideBConquests: number;
+  forfeited: boolean;
+  sideAWins: number;
+  sideBWins: number;
   completedAt: string | null;
 }
 
@@ -189,12 +194,11 @@ export async function getRecentMatches(): Promise<RecentMatch[]> {
     sideAName: row.side_a_name,
     sideBCountryId: row.side_b_country_id,
     sideBName: row.side_b_name,
-    sideBIsBot: row.side_b_is_bot,
     winnerCountryId: row.winner_country_id,
     payoutAmount: row.payout_amount,
-    winReason: row.win_reason as WinReason | null,
-    sideAConquests: row.side_a_conquests,
-    sideBConquests: row.side_b_conquests,
+    forfeited: row.forfeited,
+    sideAWins: row.side_a_wins,
+    sideBWins: row.side_b_wins,
     completedAt: row.completed_at,
   }));
 }
