@@ -70,9 +70,9 @@ export function BattleClient({
                 >
                   {outcome === "draw"
                     ? ""
-                    : `${outcome === "win" ? "+" : "-"}${
-                        m.payoutAmount ? formatWithCommas(m.payoutAmount) : ""
-                      }`}
+                    : `${outcome === "win" ? "+" : "-"}${formatWithCommas(
+                        m.payoutAmount ?? 0
+                      )}`}
                 </span>
               </div>
             );

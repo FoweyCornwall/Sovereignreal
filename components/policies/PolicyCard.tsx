@@ -9,6 +9,7 @@ import {
   STACK_POSITIVE_FACTOR,
 } from "@/lib/game/store";
 import { computeEffectiveDelta } from "@/lib/game/gdp";
+import { playClick, playError } from "@/lib/audio/sounds";
 import type { EnactPolicyResult, SectorState, StoreSlot } from "@/lib/types/game";
 
 const TIER_COLOR: Record<number, string> = {
@@ -16,7 +17,7 @@ const TIER_COLOR: Record<number, string> = {
   2: "bg-emerald-200 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200",
   3: "bg-sky-200 text-sky-900 dark:bg-sky-900 dark:text-sky-200",
   4: "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-200",
-  5: "bg-brand-300 text-brand-950 dark:bg-brand-500 dark:text-black",
+  5: "bg-amber-200 text-amber-900 dark:bg-amber-900 dark:text-amber-200",
 };
 
 export function PolicyCard({
@@ -77,8 +78,10 @@ export function PolicyCard({
     const result = await onEnact(slot);
     if (result.ok) {
       setEnactedTick((t) => t + 1);
+      playClick();
     } else if (result.reason === "INSUFFICIENT_FUNDS" || result.reason === "QUEUE_FULL") {
       setShakeTick((t) => t + 1);
+      playError();
     }
   }
 

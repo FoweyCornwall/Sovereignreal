@@ -17,7 +17,7 @@ export interface Country {
   lastSettledAt: string;
   prestigeCount: number;
   prestigeGdpBonus: number;
-  prestigeMutationBonus: number;
+  prestigeTreasuryBonus: number;
 }
 
 export interface SectorState {

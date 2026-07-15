@@ -75,7 +75,7 @@ export interface Database {
           created_at: string;
           prestige_count: number;
           prestige_gdp_bonus: number;
-          prestige_mutation_bonus: number;
+          prestige_treasury_bonus: number;
           last_ascended_at: string | null;
         };
         Insert: {
@@ -99,7 +99,7 @@ export interface Database {
           created_at?: string;
           prestige_count?: number;
           prestige_gdp_bonus?: number;
-          prestige_mutation_bonus?: number;
+          prestige_treasury_bonus?: number;
           last_ascended_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["countries"]["Insert"]>;

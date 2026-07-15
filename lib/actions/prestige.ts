@@ -3,17 +3,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export type AscendResult =
+export type RebirthResult =
   | {
       ok: true;
       prestigeCount: number;
       prestigeGdpBonus: number;
-      prestigeMutationBonus: number;
+      prestigeTreasuryBonus: number;
     }
   | { ok: false; reason: "NOT_ELIGIBLE"; requiredGdp: number; currentGdp: number }
   | { ok: false; reason: "UNKNOWN"; message?: string };
 
-export async function ascendCountry(): Promise<AscendResult> {
+// SQL identifier stays `ascend_country` (see lib/game/prestige.ts note);
+// this action's name matches the user-facing "Rebirth" copy.
+export async function rebirthCountry(): Promise<RebirthResult> {
   const supabase = await createClient();
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -42,7 +44,7 @@ export async function ascendCountry(): Promise<AscendResult> {
         ok: true;
         prestigeCount: number;
         prestigeGdpBonus: number | string;
-        prestigeMutationBonus: number | string;
+        prestigeTreasuryBonus: number | string;
       }
     | { ok: false; reason: string; requiredGdp?: number; currentGdp?: number };
 
@@ -62,6 +64,6 @@ export async function ascendCountry(): Promise<AscendResult> {
     ok: true,
     prestigeCount: result.prestigeCount,
     prestigeGdpBonus: Number(result.prestigeGdpBonus),
-    prestigeMutationBonus: Number(result.prestigeMutationBonus),
+    prestigeTreasuryBonus: Number(result.prestigeTreasuryBonus),
   };
 }

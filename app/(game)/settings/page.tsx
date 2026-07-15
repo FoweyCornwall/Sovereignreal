@@ -7,7 +7,8 @@ import { UsernameForm } from "@/components/settings/UsernameForm";
 import { CreditsPanel } from "@/components/settings/CreditsPanel";
 import { VipPanel } from "@/components/settings/VipPanel";
 import { ChangeCountryPanel } from "@/components/settings/ChangeCountryPanel";
-import { AscendPanel } from "@/components/settings/AscendPanel";
+import { RebirthPanel } from "@/components/settings/RebirthPanel";
+import { AudioToggle } from "@/components/settings/AudioToggle";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -60,6 +61,13 @@ export default async function SettingsPage() {
         <ThemeToggle />
       </div>
 
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+          Audio
+        </h2>
+        <AudioToggle />
+      </div>
+
       {country && (
         <div className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
@@ -83,9 +91,9 @@ export default async function SettingsPage() {
       {country && (
         <div className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
-            Ascension
+            Rebirths
           </h2>
-          <AscendPanel gdp={country.gdp} prestigeCount={country.prestige_count ?? 0} />
+          <RebirthPanel gdp={country.gdp} prestigeCount={country.prestige_count ?? 0} />
         </div>
       )}
 

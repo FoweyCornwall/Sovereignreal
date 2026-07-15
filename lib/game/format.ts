@@ -13,6 +13,18 @@ export function formatRateWithCommas(value: number): string {
   return value.toLocaleString("en-US", { maximumFractionDigits: 4 });
 }
 
+// SI-suffixed compact form for small tiles where a full 15-digit number
+// won't fit (e.g. Dashboard GDP/Treasury/Credits at trillion+ scale).
+// 2.22T, 654.06B, 40, etc. Pair with a title={formatWithCommas(...)} so
+// hovering still reveals the exact number.
+export function formatCompact(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  return value.toLocaleString("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 2,
+  });
+}
+
 export function formatDelta(value: number): string {
   const sign = value >= 0 ? "+" : "";
   return `${sign}${value.toFixed(3)}`;

@@ -8,7 +8,7 @@ import { PrestigeBadge } from "@/components/dashboard/PrestigeBadge";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { DailyRewardChip } from "@/components/dashboard/DailyRewardChip";
 import { VipBadge } from "@/components/ui/VipBadge";
-import { formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
+import { formatCompact, formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
 import { isVipActive } from "@/lib/game/vip";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
 import type { SectorTheme } from "@/lib/game/cosmetics";
@@ -57,30 +57,41 @@ export function DashboardView({
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-brand-500/20 bg-zinc-900 text-white shadow-sm p-4">
+        <div className="min-w-0 rounded-xl border border-brand-500/20 bg-zinc-900 text-white shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-zinc-400">GDP</p>
-          <p className="text-xl font-bold tabular-nums">{formatWithCommas(gdp)}</p>
-          <p className="text-xs text-zinc-400">
+          <p
+            className="text-xl font-bold tabular-nums truncate"
+            title={formatWithCommas(gdp)}
+          >
+            {formatCompact(gdp)}
+          </p>
+          <p className="text-xs text-zinc-400 truncate">
             {country.gdpPerSec >= 0 ? "+" : ""}
             {formatRateWithCommas(country.gdpPerSec)}/s
           </p>
         </div>
 
-        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
+        <div className="min-w-0 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4">
           <p className="text-xs uppercase tracking-wide text-zinc-500">Treasury</p>
-          <p className="text-xl font-semibold tabular-nums">
-            {formatWithCommas(treasury)}
+          <p
+            className="text-xl font-semibold tabular-nums truncate"
+            title={formatWithCommas(treasury)}
+          >
+            {formatCompact(treasury)}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-500 truncate">
             +{formatRateWithCommas(country.treasuryRegenPerSec)}/s
           </p>
         </div>
 
-        <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4 flex flex-col gap-2">
+        <div className="min-w-0 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-4 flex flex-col gap-2">
           <div>
             <p className="text-xs uppercase tracking-wide text-zinc-500">Credits</p>
-            <p className="text-xl font-semibold tabular-nums">
-              {formatWithCommas(credits)}
+            <p
+              className="text-xl font-semibold tabular-nums truncate"
+              title={formatWithCommas(credits)}
+            >
+              {formatCompact(credits)}
             </p>
           </div>
           <DailyRewardChip lastClaimedAt={lastDailyClaimAt} />

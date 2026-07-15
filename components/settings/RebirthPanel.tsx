@@ -2,19 +2,19 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ascendCountry } from "@/lib/actions/prestige";
+import { rebirthCountry } from "@/lib/actions/prestige";
 import {
   ASCENSION_MIN_GDP,
   GDP_BONUS_PER_PRESTIGE,
-  MUTATION_BONUS_PER_PRESTIGE,
+  TREASURY_BONUS_PER_PRESTIGE,
   canAscend,
   prestigeBonusPercents,
 } from "@/lib/game/prestige";
 import { formatWithCommas } from "@/lib/game/format";
 
-const CONFIRM_WORD = "ASCEND";
+const CONFIRM_WORD = "REBIRTH";
 
-export function AscendPanel({
+export function RebirthPanel({
   gdp,
   prestigeCount,
 }: {
@@ -31,7 +31,7 @@ export function AscendPanel({
   const currentBonuses = prestigeBonusPercents(prestigeCount);
   const nextBonuses = prestigeBonusPercents(prestigeCount + 1);
   const nextGdpDelta = Math.round(GDP_BONUS_PER_PRESTIGE * 100);
-  const nextMutationDelta = Math.round(MUTATION_BONUS_PER_PRESTIGE * 100);
+  const nextTreasuryDelta = Math.round(TREASURY_BONUS_PER_PRESTIGE * 100);
 
   function openModal() {
     setTyped("");
@@ -46,17 +46,17 @@ export function AscendPanel({
     setError(null);
   }
 
-  function handleAscend() {
+  function handleRebirth() {
     setError(null);
     startTransition(async () => {
-      const result = await ascendCountry();
+      const result = await rebirthCountry();
       if (result.ok) {
         setShowModal(false);
         setTyped("");
         router.refresh();
       } else if (result.reason === "NOT_ELIGIBLE") {
         setError(
-          `You need ${formatWithCommas(result.requiredGdp)} GDP to ascend — you have ${formatWithCommas(result.currentGdp)}.`
+          `You need ${formatWithCommas(result.requiredGdp)} GDP to rebirth — you have ${formatWithCommas(result.currentGdp)}.`
         );
       } else {
         setError("Something went wrong. Try again.");
@@ -69,12 +69,12 @@ export function AscendPanel({
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">
-            {prestigeCount > 0 ? `★${prestigeCount} · Ascended` : "Ascend"}
+            {prestigeCount > 0 ? `★${prestigeCount} · Reborn` : "Rebirth"}
           </p>
           {prestigeCount > 0 ? (
             <p className="text-xs text-zinc-500">
-              +{currentBonuses.gdpPct}% GDP/sec · +{currentBonuses.mutationPct}% mutation
-              proc rate (permanent)
+              +{currentBonuses.gdpPct}% GDP/sec · +{currentBonuses.treasuryPct}% treasury
+              regen (permanent)
             </p>
           ) : (
             <p className="text-xs text-zinc-500">
@@ -86,7 +86,7 @@ export function AscendPanel({
 
       <p className="text-xs text-zinc-500">
         {eligible
-          ? `Next ascension: +${nextGdpDelta}% GDP, +${nextMutationDelta}% mutation → ★${prestigeCount + 1} · +${nextBonuses.gdpPct}% / +${nextBonuses.mutationPct}% total.`
+          ? `Next rebirth: +${nextGdpDelta}% GDP, +${nextTreasuryDelta}% treasury → ★${prestigeCount + 1} · +${nextBonuses.gdpPct}% / +${nextBonuses.treasuryPct}% total.`
           : `Requires ${formatWithCommas(ASCENSION_MIN_GDP)} GDP (Diamond). You have ${formatWithCommas(gdp)}.`}
       </p>
 
@@ -96,13 +96,13 @@ export function AscendPanel({
         disabled={!eligible}
         className="self-start rounded-xl border border-amber-500 bg-amber-500 text-black font-medium py-2 px-4 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Ascend
+        Rebirth
       </button>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="max-w-md w-full rounded-2xl border border-amber-500/60 bg-white dark:bg-zinc-900 p-5 flex flex-col gap-3">
-            <h3 className="text-lg font-bold">Ascend?</h3>
+            <h3 className="text-lg font-bold">Rebirth?</h3>
             <div className="text-sm flex flex-col gap-2">
               <div>
                 <p className="font-semibold text-red-600 dark:text-red-400">
@@ -124,7 +124,7 @@ export function AscendPanel({
                 <ul className="list-disc list-inside text-zinc-600 dark:text-zinc-400">
                   <li>Credits, VIP, country identity, themes</li>
                   <li>Lifetime GDP history + settled policy log</li>
-                  <li>All existing prestige bonuses</li>
+                  <li>All existing rebirth bonuses</li>
                 </ul>
               </div>
               <div>
@@ -136,8 +136,8 @@ export function AscendPanel({
                     +{nextGdpDelta}% base GDP/sec (→ +{nextBonuses.gdpPct}% total)
                   </li>
                   <li>
-                    +{nextMutationDelta}% mutation proc rate (→ +
-                    {nextBonuses.mutationPct}% total)
+                    +{nextTreasuryDelta}% treasury regen (→ +
+                    {nextBonuses.treasuryPct}% total)
                   </li>
                 </ul>
               </div>
@@ -169,11 +169,11 @@ export function AscendPanel({
               </button>
               <button
                 type="button"
-                onClick={handleAscend}
+                onClick={handleRebirth}
                 disabled={pending || typed !== CONFIRM_WORD}
                 className="rounded-xl bg-amber-500 text-black font-medium py-2 px-4 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {pending ? "Ascending…" : "Ascend"}
+                {pending ? "Reborn…" : "Rebirth"}
               </button>
             </div>
           </div>
