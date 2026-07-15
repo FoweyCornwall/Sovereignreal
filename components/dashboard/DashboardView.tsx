@@ -8,9 +8,11 @@ import { PrestigeBadge } from "@/components/dashboard/PrestigeBadge";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { DailyRewardChip } from "@/components/dashboard/DailyRewardChip";
 import { VipBadge } from "@/components/ui/VipBadge";
+import { DailyQuestsPanel } from "@/components/dashboard/DailyQuestsPanel";
 import { formatCompact, formatRateWithCommas, formatWithCommas } from "@/lib/game/format";
 import { isVipActive } from "@/lib/game/vip";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
+import type { DailyQuest } from "@/lib/game/quests";
 import type { SectorTheme } from "@/lib/game/cosmetics";
 
 export function DashboardView({
@@ -21,6 +23,7 @@ export function DashboardView({
   lastDailyClaimAt,
   equippedSectorTheme,
   vipExpiresAt,
+  dailyQuests,
 }: {
   country: Country;
   sectors: SectorState[];
@@ -29,6 +32,7 @@ export function DashboardView({
   lastDailyClaimAt: string | null;
   equippedSectorTheme: SectorTheme | null;
   vipExpiresAt: string | null;
+  dailyQuests: DailyQuest[];
 }) {
   usePollingRefresh();
 
@@ -97,6 +101,8 @@ export function DashboardView({
           <DailyRewardChip lastClaimedAt={lastDailyClaimAt} />
         </div>
       </div>
+
+      <DailyQuestsPanel quests={dailyQuests} />
 
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">

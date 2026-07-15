@@ -10,6 +10,7 @@ export default async function DashboardPage() {
     lastDailyClaimAt,
     equippedSectorTheme,
     vipExpiresAt,
+    dailyQuests,
   } = await loadGameState();
 
   return (
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
       lastDailyClaimAt={lastDailyClaimAt}
       equippedSectorTheme={equippedSectorTheme}
       vipExpiresAt={vipExpiresAt}
+      dailyQuests={dailyQuests}
     />
   );
 }

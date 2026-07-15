@@ -22,8 +22,8 @@
 import { createAdminClient } from "../lib/supabase/admin";
 import { REAL_WORLD_COUNTRIES } from "../lib/game/countries";
 
-const VISIBLE_BOT_COUNT = 120;
-const HIDDEN_BOT_COUNT = 150;
+const VISIBLE_BOT_COUNT = 320;
+const HIDDEN_BOT_COUNT = 400;
 
 // Diamond floor, widened Grandmaster max (3e14, still >3x short of the 1e15
 // Transcendent threshold) so the single highest bot never reaches the very

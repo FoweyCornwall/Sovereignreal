@@ -1,7 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Country, SectorMutation, SectorState } from "@/lib/types/game";
-import type { Sector } from "@/lib/game/constants";
+import { SECTORS, type Sector } from "@/lib/game/constants";
+import type { DailyQuest } from "@/lib/game/quests";
 import { redirect } from "next/navigation";
+
+// Canonical display order for sector cards. Postgres returns
+// sector_state rows in undefined order (shifts after any UPDATE), so
+// sorting by this index client-side keeps the Dashboard's 10-tile grid
+// visually stable across renders.
+const SECTOR_INDEX: ReadonlyMap<string, number> = new Map(SECTORS.map((s, i) => [s, i]));
 
 function mapCountry(row: {
   id: string;
@@ -52,6 +59,7 @@ export async function loadGameState(): Promise<{
   equippedSectorTheme: "ice" | "fire" | null;
   vipExpiresAt: string | null;
   lastFreeRestockAt: string | null;
+  dailyQuests: DailyQuest[];
 }> {
   const supabase = await createClient();
 
@@ -104,13 +112,27 @@ export async function loadGameState(): Promise<{
     .eq("id", userData.user.id)
     .maybeSingle();
 
+  // Daily quests: ensure today's 3 exist + recompute progress, then read
+  // them. The RPC is idempotent + fast (a handful of counts against
+  // small per-day slices), safe to call on every dashboard load.
+  await supabase.rpc("ensure_daily_quests", { p_country_id: existing.id });
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  const { data: questRows } = await supabase
+    .from("daily_quests")
+    .select("id, quest_key, target, progress, reward_credits, completed_at, claimed_at")
+    .eq("country_id", existing.id)
+    .eq("quest_date", todayUtc)
+    .order("quest_key");
+
   return {
     country: mapCountry(settled),
-    sectors: sectorRows.map((r) => ({
-      sector: r.sector as Sector,
-      score: r.score,
-      previousScore: r.previous_score,
-    })),
+    sectors: sectorRows
+      .map((r) => ({
+        sector: r.sector as Sector,
+        score: r.score,
+        previousScore: r.previous_score,
+      }))
+      .sort((a, b) => (SECTOR_INDEX.get(a.sector) ?? 99) - (SECTOR_INDEX.get(b.sector) ?? 99)),
     mutations: (mutationRows ?? []).map((m) => ({
       sector: m.sector as Sector,
       rarity: m.rarity as SectorMutation["rarity"],
@@ -122,5 +144,14 @@ export async function loadGameState(): Promise<{
     equippedSectorTheme: (profile?.equipped_sector_theme as "ice" | "fire" | null) ?? null,
     vipExpiresAt: profile?.vip_expires_at ?? null,
     lastFreeRestockAt: profile?.last_free_restock_at ?? null,
+    dailyQuests: (questRows ?? []).map((q) => ({
+      id: q.id,
+      questKey: q.quest_key,
+      target: Number(q.target),
+      progress: Number(q.progress),
+      rewardCredits: q.reward_credits,
+      completedAt: q.completed_at,
+      claimedAt: q.claimed_at,
+    })),
   };
 }

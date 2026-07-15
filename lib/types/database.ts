@@ -415,6 +415,30 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["pvp_match_events"]["Row"]>;
         Relationships: [];
       };
+      daily_quests: {
+        Row: {
+          id: string;
+          country_id: string;
+          quest_date: string;
+          quest_key: string;
+          target: number;
+          progress: number;
+          baseline_value: number | null;
+          reward_credits: number;
+          completed_at: string | null;
+          claimed_at: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["daily_quests"]["Row"]> & {
+          country_id: string;
+          quest_date: string;
+          quest_key: string;
+          target: number;
+          reward_credits: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["daily_quests"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: {
       policy_history: {
@@ -471,6 +495,14 @@ export interface Database {
       };
       claim_daily_reward: {
         Args: Record<string, never>;
+        Returns: Json;
+      };
+      ensure_daily_quests: {
+        Args: { p_country_id: string };
+        Returns: undefined;
+      };
+      claim_daily_quest: {
+        Args: { p_quest_id: string };
         Returns: Json;
       };
       get_leaderboard: {
