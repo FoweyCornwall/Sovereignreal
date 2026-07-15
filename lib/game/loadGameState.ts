@@ -16,6 +16,9 @@ function mapCountry(row: {
   treasury: number;
   treasury_regen_per_sec: number;
   last_settled_at: string;
+  prestige_count?: number | null;
+  prestige_gdp_bonus?: number | null;
+  prestige_mutation_bonus?: number | null;
 }): Country {
   return {
     id: row.id,
@@ -30,6 +33,9 @@ function mapCountry(row: {
     treasury: row.treasury,
     treasuryRegenPerSec: row.treasury_regen_per_sec,
     lastSettledAt: row.last_settled_at,
+    prestigeCount: row.prestige_count ?? 0,
+    prestigeGdpBonus: Number(row.prestige_gdp_bonus ?? 0),
+    prestigeMutationBonus: Number(row.prestige_mutation_bonus ?? 0),
   };
 }
 

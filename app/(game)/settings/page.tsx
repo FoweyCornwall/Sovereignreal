@@ -7,6 +7,7 @@ import { UsernameForm } from "@/components/settings/UsernameForm";
 import { CreditsPanel } from "@/components/settings/CreditsPanel";
 import { VipPanel } from "@/components/settings/VipPanel";
 import { ChangeCountryPanel } from "@/components/settings/ChangeCountryPanel";
+import { AscendPanel } from "@/components/settings/AscendPanel";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -23,7 +24,7 @@ export default async function SettingsPage() {
 
   const { data: country } = await supabase
     .from("countries")
-    .select("name, flag_emoji, flag_style, country_code, identity_updated_at")
+    .select("name, flag_emoji, flag_style, country_code, identity_updated_at, gdp, prestige_count")
     .eq("user_id", userData.user.id)
     .maybeSingle();
 
@@ -76,6 +77,15 @@ export default async function SettingsPage() {
             }}
             identityUpdatedAt={country.identity_updated_at}
           />
+        </div>
+      )}
+
+      {country && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+            Ascension
+          </h2>
+          <AscendPanel gdp={country.gdp} prestigeCount={country.prestige_count ?? 0} />
         </div>
       )}
 

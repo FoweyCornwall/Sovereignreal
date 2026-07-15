@@ -73,6 +73,10 @@ export interface Database {
           show_on_leaderboard: boolean;
           last_settled_at: string;
           created_at: string;
+          prestige_count: number;
+          prestige_gdp_bonus: number;
+          prestige_mutation_bonus: number;
+          last_ascended_at: string | null;
         };
         Insert: {
           id?: string;
@@ -93,6 +97,10 @@ export interface Database {
           show_on_leaderboard?: boolean;
           last_settled_at?: string;
           created_at?: string;
+          prestige_count?: number;
+          prestige_gdp_bonus?: number;
+          prestige_mutation_bonus?: number;
+          last_ascended_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["countries"]["Insert"]>;
         Relationships: [];
@@ -477,7 +485,12 @@ export interface Database {
           gdp: number;
           rank: number;
           is_vip: boolean;
+          prestige_count: number;
         }[];
+      };
+      ascend_country: {
+        Args: { p_country_id: string };
+        Returns: Json;
       };
       get_my_rank: {
         Args: { p_country_id: string };

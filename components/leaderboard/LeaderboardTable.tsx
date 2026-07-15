@@ -2,6 +2,7 @@ import { formatWithCommas } from "@/lib/game/format";
 import { getRankTier } from "@/lib/game/rankTiers";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { RankIcon } from "@/components/dashboard/RankIcon";
+import { PrestigeBadge } from "@/components/dashboard/PrestigeBadge";
 import { VipBadge } from "@/components/ui/VipBadge";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
@@ -26,6 +27,7 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
         <p className="text-sm font-medium truncate flex items-center gap-1.5">
           <span className="truncate">{entry.username ? `@${entry.username}` : "Anonymous"}</span>
           {entry.isVip && <VipBadge />}
+          <PrestigeBadge count={entry.prestigeCount} />
         </p>
         <p className="text-xs text-zinc-500 truncate">{entry.name}</p>
       </div>

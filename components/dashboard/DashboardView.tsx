@@ -4,6 +4,7 @@ import { useTickingValue } from "@/components/dashboard/useTickingValue";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { SectorCard } from "@/components/dashboard/SectorCard";
 import { RankBadge } from "@/components/dashboard/RankBadge";
+import { PrestigeBadge } from "@/components/dashboard/PrestigeBadge";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { DailyRewardChip } from "@/components/dashboard/DailyRewardChip";
 import { VipBadge } from "@/components/ui/VipBadge";
@@ -49,6 +50,7 @@ export function DashboardView({
           <h1 className="text-xl font-semibold flex items-center gap-2">
             {country.name}
             {isVipActive(vipExpiresAt) && <VipBadge />}
+            <PrestigeBadge count={country.prestigeCount} />
           </h1>
           <RankBadge gdp={country.gdp} />
         </div>

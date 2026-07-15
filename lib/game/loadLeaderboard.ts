@@ -20,7 +20,7 @@ export async function loadLeaderboard(): Promise<{
 
   const { data: country } = await supabase
     .from("countries")
-    .select("id, name, username, flag_emoji, flag_style, country_code, gdp")
+    .select("id, name, username, flag_emoji, flag_style, country_code, gdp, prestige_count")
     .eq("user_id", userData.user.id)
     .maybeSingle();
 
@@ -56,6 +56,7 @@ export async function loadLeaderboard(): Promise<{
       gdp: r.gdp,
       rank: r.rank,
       isVip: r.is_vip,
+      prestigeCount: r.prestige_count ?? 0,
     })),
     myCountryId: country.id,
     myRank: rank,
@@ -69,6 +70,7 @@ export async function loadLeaderboard(): Promise<{
       gdp: country.gdp,
       rank,
       isVip: isVipActive(profile?.vip_expires_at ?? null),
+      prestigeCount: country.prestige_count ?? 0,
     } satisfies LeaderboardEntry,
   };
 }

@@ -15,6 +15,9 @@ export interface Country {
   treasury: number;
   treasuryRegenPerSec: number;
   lastSettledAt: string;
+  prestigeCount: number;
+  prestigeGdpBonus: number;
+  prestigeMutationBonus: number;
 }
 
 export interface SectorState {
@@ -88,6 +91,7 @@ export interface LeaderboardEntry {
   gdp: number;
   rank: number;
   isVip: boolean;
+  prestigeCount: number;
 }
 
 export const MUTATION_RARITIES = [
