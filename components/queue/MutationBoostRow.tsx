@@ -1,19 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatCountdown } from "@/lib/game/format";
 import type { MutationBoost } from "@/lib/types/game";
 
-export function MutationBoostRow({ boost }: { boost: MutationBoost }) {
+export function MutationBoostRow({ boost, now }: { boost: MutationBoost; now: number }) {
   const expiresAt = new Date(boost.expiresAt).getTime();
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const remainingMs = Math.max(0, expiresAt - now);
 
   if (remainingMs <= 0) {

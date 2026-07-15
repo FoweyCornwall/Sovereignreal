@@ -7,7 +7,7 @@ import type { LeaderboardEntry } from "@/lib/types/game";
 
 function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
   const tier = getRankTier(entry.gdp);
-  const isIridescent = tier.color === "iridescent";
+  const hasGradient = Boolean(tier.gradientClass);
 
   return (
     <div
@@ -30,15 +30,10 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
         <p className="text-xs text-zinc-500 truncate">{entry.name}</p>
       </div>
       <span
-        className="hidden sm:inline-flex items-center gap-1 text-xs font-medium shrink-0"
-        style={{
-          color: isIridescent ? undefined : tier.color,
-          backgroundImage: isIridescent
-            ? "linear-gradient(90deg, #ff9a9e, #a18cd1, #8fd3f4)"
-            : undefined,
-          WebkitBackgroundClip: isIridescent ? "text" : undefined,
-          WebkitTextFillColor: isIridescent ? "transparent" : undefined,
-        }}
+        className={`hidden sm:inline-flex items-center gap-1 text-xs font-medium shrink-0 ${
+          hasGradient ? `${tier.gradientClass} bg-clip-text text-transparent` : ""
+        }`}
+        style={{ color: hasGradient ? undefined : tier.color }}
       >
         <RankIcon gdp={entry.gdp} size={14} strokeWidth={2.25} />
         {tier.name}

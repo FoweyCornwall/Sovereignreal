@@ -149,6 +149,28 @@ body {
   animation: pvp-pending-pulse 1.2s ease-in-out infinite;
 }
 
+/* Slow, smooth side-to-side color flow for the Transcendent and
+   Grandmaster rank tiers - a softer alternative to mutation-rgb-glow's
+   hard color-cycling jumps. A wide gradient slides back and forth across
+   the element via background-position on a background-size much larger
+   than 100%, rather than snapping between discrete hues. */
+@keyframes tier-rgb-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.tier-flow-transcendent {
+  background-image: linear-gradient(90deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #8fd3f4, #ff9a9e);
+  background-size: 300% 100%;
+  animation: tier-rgb-flow 7s ease-in-out infinite alternate;
+}
+
+.tier-flow-grandmaster {
+  background-image: linear-gradient(90deg, #ff5c7a, #ff8a5c, #ffb347, #ff5c9d, #ff5c7a);
+  background-size: 300% 100%;
+  animation: tier-rgb-flow 7s ease-in-out infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-star,
   .mutation-rgb-glow,
@@ -156,7 +178,9 @@ body {
   .enact-fly-up,
   .enact-button-shake,
   .siege-reveal-pop,
-  .pvp-pending-pulse {
+  .pvp-pending-pulse,
+  .tier-flow-transcendent,
+  .tier-flow-grandmaster {
     animation: none;
   }
 }

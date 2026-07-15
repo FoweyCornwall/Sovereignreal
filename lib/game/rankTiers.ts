@@ -1,7 +1,14 @@
 export interface RankTier {
   name: string;
   threshold: number;
+  // Always a valid CSS color - used for icon fill, and as the badge/text
+  // color for tiers with no gradientClass. Gradient tiers still carry a
+  // representative solid color here (rather than a sentinel string) so
+  // icons and any other single-color usage don't need a special case.
   color: string;
+  // When set, badges/leaderboard text use this animated flowing-gradient
+  // class (defined in app/globals.css) instead of a flat color/tint.
+  gradientClass?: string;
 }
 
 // GDP thresholds. Note the last gap is 100x while every other gap is 10x -
@@ -13,11 +20,17 @@ export const RANK_TIERS: RankTier[] = [
   { name: "Platinum", threshold: 10_000_000_000, color: "var(--tier-platinum)" },
   { name: "Diamond", threshold: 100_000_000_000, color: "var(--tier-diamond)" },
   { name: "Master", threshold: 1_000_000_000_000, color: "var(--tier-master)" },
-  { name: "Grandmaster", threshold: 10_000_000_000_000, color: "var(--tier-grandmaster)" },
+  {
+    name: "Grandmaster",
+    threshold: 10_000_000_000_000,
+    color: "var(--tier-grandmaster)",
+    gradientClass: "tier-flow-grandmaster",
+  },
   {
     name: "Transcendent",
     threshold: 1_000_000_000_000_000,
-    color: "iridescent",
+    color: "#a18cd1",
+    gradientClass: "tier-flow-transcendent",
   },
 ];
 

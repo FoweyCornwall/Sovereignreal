@@ -12,7 +12,10 @@ export function MutationBadge({ mutation }: { mutation: SectorMutation }) {
         color: isIridescent ? "#000" : info.color,
         backgroundColor: isIridescent
           ? undefined
-          : `color-mix(in srgb, ${info.color} 13%, transparent)`,
+          : `color-mix(in srgb, ${info.color} 22%, transparent)`,
+        border: isIridescent
+          ? undefined
+          : `1px solid color-mix(in srgb, ${info.color} 45%, transparent)`,
         backgroundImage: isIridescent
           ? "linear-gradient(90deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #8fd3f4)"
           : undefined,

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatCountdown, formatDelta } from "@/lib/game/format";
 import { SKIP_TIMER_COST_CREDITS } from "@/lib/game/store";
@@ -11,22 +10,17 @@ export function ActivePolicyRow({
   credits,
   onSkip,
   skipPending,
+  now,
 }: {
   policy: ActivePolicy;
   credits: number;
   onSkip: (activePolicyId: string) => void;
   skipPending: boolean;
+  now: number;
 }) {
   const startedAt = new Date(policy.startedAt).getTime();
   const completesAt = new Date(policy.completesAt).getTime();
   const totalMs = completesAt - startedAt;
-
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const remainingMs = Math.max(0, completesAt - now);
   const progress = totalMs > 0 ? Math.min(1, (now - startedAt) / totalMs) : 1;

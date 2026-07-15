@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { ActivePolicyRow } from "@/components/queue/ActivePolicyRow";
@@ -13,6 +13,15 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  // One shared clock for every row's countdown, instead of each row running
+  // its own 1s interval (which was N independent timers + N independent
+  // re-renders per second once several policies/boosts were active at once).
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   function handleSkip(activePolicyId: string) {
     setMessage(null);
@@ -52,9 +61,10 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
                 credits={credits}
                 onSkip={handleSkip}
                 skipPending={pending}
+                now={now}
               />
             ) : (
-              <MutationBoostRow key={item.id} boost={item} />
+              <MutationBoostRow key={item.id} boost={item} now={now} />
             )
           )}
         </div>

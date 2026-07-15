@@ -23,13 +23,12 @@ export function RankIcon({
 }) {
   const tier = getRankTier(gdp);
   const Icon = TIER_ICON[tier.name] ?? Award;
-  const isIridescent = tier.color === "iridescent";
   return (
     <Icon
       width={size}
       height={size}
       strokeWidth={strokeWidth}
-      style={{ color: isIridescent ? "#a18cd1" : tier.color }}
+      style={{ color: tier.color }}
       aria-hidden
     />
   );
