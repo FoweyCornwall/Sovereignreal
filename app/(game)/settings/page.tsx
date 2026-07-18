@@ -9,6 +9,7 @@ import { VipPanel } from "@/components/settings/VipPanel";
 import { ChangeCountryPanel } from "@/components/settings/ChangeCountryPanel";
 import { RebirthPanel } from "@/components/settings/RebirthPanel";
 import { AudioToggle } from "@/components/settings/AudioToggle";
+import { HowToPlayButton } from "@/components/settings/HowToPlayModal";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -32,6 +33,13 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-xl font-semibold">Settings</h1>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">
+          Tutorial
+        </h2>
+        <HowToPlayButton />
+      </div>
 
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">

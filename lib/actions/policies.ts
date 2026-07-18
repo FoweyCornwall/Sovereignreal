@@ -185,6 +185,35 @@ export async function skipActivePolicy(activePolicyId: string): Promise<SkipActi
   return { ok: true };
 }
 
+export type SkipAllPoliciesResult =
+  | { ok: true; skipped: number }
+  | { ok: false; reason: "INSUFFICIENT_CREDITS"; shortfall: number }
+  | { ok: false; reason: "NOTHING_TO_SKIP" | "UNKNOWN" };
+
+export async function skipAllPolicies(): Promise<SkipAllPoliciesResult> {
+  const supabase = await createClient();
+  const { countryId } = await requireCountryId();
+
+  const { data, error } = await supabase.rpc("skip_all_policies", {
+    p_country_id: countryId,
+  });
+  if (error) {
+    return { ok: false, reason: "UNKNOWN" };
+  }
+
+  const result = data as { ok: boolean; reason?: string; shortfall?: number; skipped?: number };
+  if (!result.ok) {
+    if (result.reason === "INSUFFICIENT_CREDITS") {
+      return { ok: false, reason: "INSUFFICIENT_CREDITS", shortfall: result.shortfall ?? 0 };
+    }
+    if (result.reason === "NOTHING_TO_SKIP") {
+      return { ok: false, reason: "NOTHING_TO_SKIP" };
+    }
+    return { ok: false, reason: "UNKNOWN" };
+  }
+  return { ok: true, skipped: result.skipped ?? 0 };
+}
+
 export type ClaimVipFreeRestockResult =
   | { ok: true }
   | { ok: false; reason: "NOT_VIP" | "ON_COOLDOWN"; retryAt?: string };

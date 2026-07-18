@@ -27,7 +27,14 @@ export function formatCompact(value: number): string {
 
 export function formatDelta(value: number): string {
   const sign = value >= 0 ? "+" : "";
-  return `${sign}${value.toFixed(3)}`;
+  return `${sign}${Math.round(value).toLocaleString("en-US")}`;
+}
+
+// Sector scores are now uncapped integers (0033) - display them
+// comma-grouped and floored to whole numbers.
+export function formatSectorScore(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  return Math.floor(value).toLocaleString("en-US");
 }
 
 export function formatDuration(totalSeconds: number): string {

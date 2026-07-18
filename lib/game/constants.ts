@@ -42,29 +42,27 @@ export const SECTOR_WEIGHTS: Record<Sector, number> = {
 };
 
 // gdp_per_sec = GDP_SCALE * sum(sector_score_i * weight_i)
-// Rescaled 5x (1000->5000) alongside the sector cap dropping 500->100, so a
-// fully-maxed country produces roughly the same GDP/sec as before that
-// change - keeps existing rank-tier pacing intact rather than making high
-// ranks depend on landing mutations just to progress at a normal rate.
-export const GDP_SCALE = 5000;
+// Dropped 5000 -> 500 in 0033 alongside removing the 100-score sector cap,
+// so the climb to Diamond/Master/Transcendent stays roughly as hard as
+// before even with sectors free to grow unbounded.
+export const GDP_SCALE = 500;
 
-// treasury_regen_per_sec = BASE_TREASURY_REGEN + INCOME_REGEN_FACTOR * gdp_per_sec
-// (mirrored in settle_country() in 0015_treasury_regen_from_gdp_per_sec.sql)
-export const BASE_TREASURY_REGEN = 0.5;
-export const INCOME_REGEN_FACTOR = 0.5;
-
+// treasury_regen_per_sec = gdp_per_sec / 2 (mirrored in settle_country()
+// in 0033). No base regen anymore - at gdp/sec = 0 treasury is idle.
 export const STARTING_TREASURY = 1000;
 
 export const TIERS = [1, 2, 3, 4, 5] as const;
 export type Tier = (typeof TIERS)[number];
 
-// Per-tier caps enforced both in seed content and defensively at settle time.
+// Per-tier defensive caps enforced in settle_country. T4/T5 bumped
+// dramatically in 0033: a T5 is 50x the boost of a T1, so it justifies
+// being 10x+ the cost.
 export const TIER_MAX_SINGLE_DELTA: Record<Tier, number> = {
   1: 8,
   2: 14,
   3: 20,
-  4: 30,
-  5: 40,
+  4: 200,
+  5: 400,
 };
 
 export const TIER_DURATION_SECONDS: Record<Tier, { min: number; max: number }> = {
@@ -90,13 +88,9 @@ export const TIER_COST_RANGE: Record<Tier, { min: number; max: number }> = {
   5: { min: 8_925_000, max: 17_255_000 },
 };
 
-// Defensive floor/ceiling on any single sector's score, applied at settle
-// time. Ceiling dropped 500->100 so the sector index reads as a clean
-// percentage-like scale; policies apply progressively less of their raw
-// delta the closer a sector already is to the ceiling (see settle_country's
-// diminishing-returns step).
+// Defensive floor on any single sector's score. Ceiling removed in 0033 -
+// sectors grow unbounded, encouraging real strategy over a race to 100.
 export const SECTOR_SCORE_FLOOR = 0;
-export const SECTOR_SCORE_CEILING = 100;
 
 // Hand size for the Policy Deck (Flow 3). Lower tiers drawn more often.
 export const POLICY_HAND_SIZE = 5;

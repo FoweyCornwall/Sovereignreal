@@ -505,6 +505,10 @@ export interface Database {
         Args: { p_quest_id: string };
         Returns: Json;
       };
+      skip_all_policies: {
+        Args: { p_country_id: string };
+        Returns: Json;
+      };
       get_leaderboard: {
         Args: { p_limit?: number };
         Returns: {

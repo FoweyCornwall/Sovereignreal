@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { usePollingRefresh } from "@/components/usePollingRefresh";
 import { ActivePolicyRow } from "@/components/queue/ActivePolicyRow";
 import { MutationBoostRow } from "@/components/queue/MutationBoostRow";
-import { skipActivePolicy } from "@/lib/actions/policies";
+import { skipActivePolicy, skipAllPolicies } from "@/lib/actions/policies";
+import { SKIP_ALL_COST_CREDITS } from "@/lib/game/store";
 import type { QueueItem } from "@/lib/types/game";
 
 export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credits: number }) {
@@ -13,6 +14,8 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const policyCount = items.filter((i) => i.kind === "policy").length;
 
   // One shared clock for every row's countdown, instead of each row running
   // its own 1s interval (which was N independent timers + N independent
@@ -39,9 +42,38 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
     });
   }
 
+  function handleSkipAll() {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await skipAllPolicies();
+      if (result.ok) {
+        setMessage(`Skipped ${result.skipped} ${result.skipped === 1 ? "policy" : "policies"}.`);
+        router.refresh();
+      } else if (result.reason === "INSUFFICIENT_CREDITS") {
+        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+      } else if (result.reason === "NOTHING_TO_SKIP") {
+        setMessage("No policies to skip.");
+      } else {
+        setMessage("Couldn't skip. Try again.");
+      }
+    });
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Active Policies</h1>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-xl font-semibold">Active Policies</h1>
+        {policyCount > 0 && (
+          <button
+            type="button"
+            onClick={handleSkipAll}
+            disabled={pending || credits < SKIP_ALL_COST_CREDITS}
+            className="text-xs sm:text-sm rounded-xl border border-black/5 dark:border-white/5 bg-amber-500 text-black font-semibold px-3 py-1.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500"
+          >
+            Skip All ({SKIP_ALL_COST_CREDITS} credits)
+          </button>
+        )}
+      </div>
 
       {message && (
         <p className="text-sm rounded-xl bg-zinc-100 dark:bg-zinc-900 px-3 py-2">{message}</p>

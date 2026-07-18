@@ -227,32 +227,57 @@ export function MatchView({
   if (showCompleted) {
     const isDraw = live.isDraw;
     const won = !isDraw && live.winnerCountryId === countryId;
+    const payout = live.payoutAmount ?? 0;
+    const outcomeLabel = isDraw ? "Draw" : won ? "Victory" : "Defeat";
+    const outcomeColor = isDraw
+      ? "text-zinc-400"
+      : won
+        ? "text-emerald-500"
+        : "text-red-500";
 
     return (
-      <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-5 flex flex-col items-center gap-4">
+      <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm p-8 flex flex-col items-center gap-6">
         <p
-          className={`text-lg font-bold ${
-            isDraw ? "text-zinc-400" : won ? "text-emerald-500" : "text-red-500"
-          }`}
+          className={`text-5xl sm:text-6xl font-extrabold tracking-tight ${outcomeColor}`}
         >
-          {isDraw ? "Draw" : won ? "Victory!" : "Defeat"}
+          {outcomeLabel}
         </p>
+
+        {!isDraw && payout > 0 && (
+          <div className="flex flex-col items-center gap-1">
+            <span
+              className={`text-3xl sm:text-4xl font-bold tabular-nums ${
+                won ? "text-amber-500" : "text-red-500"
+              }`}
+              title={formatWithCommas(payout)}
+            >
+              {won ? "+" : "−"}
+              {formatWithCommas(payout)}
+            </span>
+            <span className="text-xs uppercase tracking-widest text-zinc-500">
+              treasury {won ? "looted" : "lost"}
+            </span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-4 text-xl font-bold tabular-nums">
+          <span className="text-brand-500">{myWins}</span>
+          <span className="text-zinc-400 font-normal">—</span>
+          <span className="text-red-500">{opponentWins}</span>
+        </div>
+
         <p className="text-sm text-zinc-500 text-center">
-          {myWins}-{opponentWins} vs {live.opponentIdentity.name}
+          vs {live.opponentIdentity.name}
           {live.forfeited &&
             (won ? " — they left the match." : " — you left the match.")}
-          {!isDraw && live.payoutAmount
-            ? won
-              ? ` You looted ${formatWithCommas(live.payoutAmount)} treasury.`
-              : ` You lost ${formatWithCommas(live.payoutAmount)} treasury.`
-            : ""}
         </p>
+
         <button
           type="button"
           onClick={onDone}
-          className="rounded-xl bg-brand-500 text-black font-medium py-2.5 px-8"
+          className="rounded-xl bg-brand-500 text-black font-semibold py-2.5 px-8 mt-2"
         >
-          Done
+          Return to Matchmaking
         </button>
       </div>
     );

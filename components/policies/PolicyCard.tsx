@@ -3,12 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { formatDelta, formatDuration, formatWithCommas } from "@/lib/game/format";
-import {
-  computeEffectiveCost,
-  STACK_NEGATIVE_FACTOR,
-  STACK_POSITIVE_FACTOR,
-} from "@/lib/game/store";
-import { computeEffectiveDelta } from "@/lib/game/gdp";
+import { computeEffectiveCost } from "@/lib/game/store";
 import { playClick, playError } from "@/lib/audio/sounds";
 import type { EnactPolicyResult, SectorState, StoreSlot } from "@/lib/types/game";
 
@@ -24,28 +19,20 @@ export function PolicyCard({
   slot,
   sectors,
   gdp,
-  stackCount,
   onEnact,
   pending,
 }: {
   slot: StoreSlot;
   sectors: SectorState[];
   gdp: number;
-  stackCount: number;
   onEnact: (slot: StoreSlot) => Promise<EnactPolicyResult>;
   pending: boolean;
 }) {
-  const scoreBySector = new Map(sectors.map((s) => [s.sector, s.score]));
+  void sectors;
   const deltaEntries = Object.entries(slot.statDeltas);
   const effectiveCost = computeEffectiveCost(slot.baseCost, gdp);
   const soldOut = slot.quantity <= 0;
   const lowStock = !soldOut && slot.quantity <= slot.initialQuantity * 0.15;
-  // Positive deltas shrink and negatives grow with each stacked enactment
-  // (matches enact_store_policy() in 0004_policy_store.sql). This is the
-  // "derived benefit" the store card advertises: the effect of the NEXT
-  // enactment, which changes every time the player enacts this policy again.
-  const posStack = Math.pow(STACK_POSITIVE_FACTOR, stackCount);
-  const negStack = Math.pow(STACK_NEGATIVE_FACTOR, stackCount);
 
   // Enact click state: enactedTick is monotonically increasing so a fresh
   // chip <span> re-mounts (via key) every click. The button's pulse animation
@@ -100,30 +87,14 @@ export function PolicyCard({
       )}
 
       <ul className="text-sm flex flex-col gap-0.5">
-        {deltaEntries.map(([sector, delta]) => {
-          const currentScore = scoreBySector.get(sector as keyof typeof SECTOR_LABELS) ?? 0;
-          const stackedDelta = delta! >= 0 ? delta! * posStack : delta! * negStack;
-          const effectiveDelta = computeEffectiveDelta(stackedDelta, currentScore);
-          const isDampened =
-            stackedDelta > 0 && Math.abs(effectiveDelta - stackedDelta) > 0.001;
-          const isStacked = stackCount > 0 && Math.abs(stackedDelta - delta!) > 0.001;
-          return (
-            <li
-              key={sector}
-              className={delta! >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}
-            >
-              {formatDelta(effectiveDelta)} {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
-              {(isDampened || isStacked) && (
-                <span className="text-zinc-400 dark:text-zinc-600">
-                  {" "}
-                  (base {formatDelta(delta!)}
-                  {isStacked ? `, stacked x${stackCount}` : ""}
-                  {isDampened ? `, ${currentScore.toFixed(0)}/100 already` : ""})
-                </span>
-              )}
-            </li>
-          );
-        })}
+        {deltaEntries.map(([sector, delta]) => (
+          <li
+            key={sector}
+            className={delta! >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}
+          >
+            {formatDelta(delta!)} {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
+          </li>
+        ))}
       </ul>
 
       <div className="flex items-center justify-between text-sm text-zinc-500">
@@ -141,26 +112,19 @@ export function PolicyCard({
             key={enactedTick}
             className="enact-fly-up pointer-events-none absolute left-1/2 -top-2 -translate-x-1/2 flex flex-col items-center gap-0.5 text-sm font-semibold whitespace-nowrap"
           >
-            {deltaEntries.map(([sector, delta]) => {
-              const currentScore =
-                scoreBySector.get(sector as keyof typeof SECTOR_LABELS) ?? 0;
-              const stackedDelta =
-                delta! >= 0 ? delta! * posStack : delta! * negStack;
-              const effectiveDelta = computeEffectiveDelta(stackedDelta, currentScore);
-              return (
-                <span
-                  key={sector}
-                  className={
-                    delta! >= 0
-                      ? "text-emerald-500 drop-shadow-sm"
-                      : "text-red-500 drop-shadow-sm"
-                  }
-                >
-                  {formatDelta(effectiveDelta)}{" "}
-                  {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
-                </span>
-              );
-            })}
+            {deltaEntries.map(([sector, delta]) => (
+              <span
+                key={sector}
+                className={
+                  delta! >= 0
+                    ? "text-emerald-500 drop-shadow-sm"
+                    : "text-red-500 drop-shadow-sm"
+                }
+              >
+                {formatDelta(delta!)}{" "}
+                {SECTOR_LABELS[sector as keyof typeof SECTOR_LABELS]}
+              </span>
+            ))}
           </div>
         )}
         <button

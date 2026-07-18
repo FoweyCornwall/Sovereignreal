@@ -16,7 +16,6 @@ export function PolicyMutationTabs({
   sectors,
   gdp,
   credits,
-  stackCounts,
   isVip,
   lastFreeRestockAt,
   cosmeticsOwned,
@@ -28,7 +27,6 @@ export function PolicyMutationTabs({
   sectors: SectorState[];
   gdp: number;
   credits: number;
-  stackCounts: Record<string, number>;
   isVip: boolean;
   lastFreeRestockAt: string | null;
   cosmeticsOwned: string[];
@@ -66,7 +64,6 @@ export function PolicyMutationTabs({
           sectors={sectors}
           gdp={gdp}
           credits={credits}
-          initialStackCounts={stackCounts}
           isVip={isVip}
           lastFreeRestockAt={lastFreeRestockAt}
         />

@@ -1,5 +1,6 @@
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { computeTrend } from "@/lib/game/gdp";
+import { formatSectorScore } from "@/lib/game/format";
 import { MUTATION_RARITIES_INFO, getRarityInfo } from "@/lib/game/mutations";
 import { MutationBadge } from "@/components/dashboard/MutationBadge";
 import type { SectorMutation, SectorState } from "@/lib/types/game";
@@ -39,7 +40,7 @@ export function SectorCard({
       <div className="flex flex-col gap-1 rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm px-3 py-2.5">
         <span className="text-sm font-medium truncate">{SECTOR_LABELS[state.sector]}</span>
         <div className="flex items-center justify-between">
-          <span className="tabular-nums text-sm">{state.score.toFixed(3)}</span>
+          <span className="tabular-nums text-sm">{formatSectorScore(state.score)}</span>
           <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
         </div>
       </div>
@@ -69,7 +70,7 @@ export function SectorCard({
           <MutationBadge mutation={mutation} />
         </div>
         <div className="flex items-center justify-between">
-          <span className="tabular-nums text-sm font-semibold">{state.score.toFixed(3)}</span>
+          <span className="tabular-nums text-sm font-semibold">{formatSectorScore(state.score)}</span>
           <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
         </div>
       </div>
@@ -99,7 +100,7 @@ export function SectorCard({
         <MutationBadge mutation={mutation} />
       </div>
       <div className="flex items-center justify-between">
-        <span className="tabular-nums text-sm font-semibold">{state.score.toFixed(3)}</span>
+        <span className="tabular-nums text-sm font-semibold">{formatSectorScore(state.score)}</span>
         <span className={`${TREND_COLOR[trend]} text-xs`}>{TREND_ARROW[trend]}</span>
       </div>
     </div>
