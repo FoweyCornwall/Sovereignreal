@@ -60,24 +60,25 @@ const HIDDEN_GDP_BUCKETS: { weight: number; min: number; max: number; vipChance:
   { weight: 0.1, min: 100_000_000_000, max: 1_000_000_000_000, vipChance: 0.1 }, // Diamond
 ];
 
-// Roughly a quarter of all bots get a joke custom country instead of a
-// real-world one - flag emoji + solid color, same picker used by players
-// in Country Setup, no real ISO country_code.
-const CUSTOM_COUNTRY_CHANCE = 0.25;
+// A small fraction of bots get a plausible-sounding fictional country
+// name instead of a real-world one - keeps the leaderboard from feeling
+// too US/UK/JP-heavy without making bots obvious. Same flag-emoji +
+// solid-color picker used by players in Country Setup.
+const CUSTOM_COUNTRY_CHANCE = 0.10;
 
 const CUSTOM_COUNTRY_NAMES = [
-  "The United Snack Nations", "Republic of Nap Time", "Duchy of Bad Wifi",
-  "Sock Drawer Federation", "Land of Perpetual Mondays",
-  "Kingdom of Overdue Library Books", "Republic of Lost Chargers",
-  "Duchy of Cold Coffee", "Nation of Almost Vegetarians",
-  "Land of the Midnight Snack", "Federation of Procrastination",
-  "Kingdom of Mismatched Socks", "Republic of Group Chat Silence",
-  "Duchy of Autocorrect Fails", "Nation of Loading Screens",
-  "Land of Forgotten Passwords", "Kingdom of Backseat Drivers",
-  "Republic of Half-Finished Projects", "Federation of Snooze Buttons",
-  "Duchy of Wrong Turn Avenue", "People's Republic of Left Socks",
-  "Grand Duchy of Expired Coupons", "Nation of Unread Emails",
-  "Kingdom of Low Battery", "Republic of Buffering",
+  "Republic of Norvalia", "Kingdom of Ashland", "Duchy of Vellmark",
+  "United Provinces of Karidon", "Federation of Astraea",
+  "Kingdom of Solavaria", "Republic of Eldoria", "Grand Duchy of Marovia",
+  "Principality of Talveren", "Kingdom of Ostrelia",
+  "Republic of Corvenia", "Confederation of Tarsis",
+  "Kingdom of Selmarque", "United Realms of Vasterlund",
+  "Republic of Halveran", "Duchy of Rivenshore",
+  "Kingdom of Meridia", "Principality of Aldenrock",
+  "Federation of Zephyria", "Republic of Braendor",
+  "Grand Duchy of Corvel", "Kingdom of Illyria",
+  "Republic of Sarnia", "Nation of Kaltmark",
+  "Kingdom of Verona-Krest",
 ];
 
 const CUSTOM_FLAG_EMOJI = [
@@ -272,6 +273,23 @@ async function main() {
     for (const row of topBotRows) {
       const prestige = 5 + Math.floor(Math.random() * 11);
       await supabase.from("countries").update({ prestige_count: prestige }).eq("id", row.id);
+    }
+  }
+
+  // Top-10-by-GDP force VIP - guarantees the very top of the visible
+  // leaderboard shows the gold VIP ring regardless of the per-bucket
+  // vipChance rolls at build time. Mirrors migration 0036.
+  const { data: topTenRows } = await supabase
+    .from("countries")
+    .select("id")
+    .eq("is_bot", true)
+    .eq("show_on_leaderboard", true)
+    .order("gdp", { ascending: false })
+    .limit(10);
+
+  if (topTenRows) {
+    for (const row of topTenRows) {
+      await supabase.from("countries").update({ is_vip_bot: true }).eq("id", row.id);
     }
   }
 

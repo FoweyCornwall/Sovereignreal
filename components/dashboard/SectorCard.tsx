@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { SECTOR_LABELS } from "@/lib/game/constants";
 import { computeTrend } from "@/lib/game/gdp";
 import { formatSectorScore } from "@/lib/game/format";
@@ -24,7 +25,7 @@ const LEGENDARY_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex(
 const EPIC_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex((r) => r.rarity === "epic");
 const MYTHIC_AND_ABOVE_INDEX = MUTATION_RARITIES_INFO.findIndex((r) => r.rarity === "mythic");
 
-export function SectorCard({
+function SectorCardImpl({
   state,
   mutation,
   equippedTheme,
@@ -106,3 +107,10 @@ export function SectorCard({
     </div>
   );
 }
+
+// Memoized: the Dashboard re-renders the whole sector grid on every
+// polling tick + on every action's router.refresh(). Without memo, all
+// 10 cards + their mutation gradients repaint even when nothing in their
+// props changed. Referential-equality on state/mutation is enough here
+// since loadGameState builds fresh objects only on real changes.
+export const SectorCard = memo(SectorCardImpl);

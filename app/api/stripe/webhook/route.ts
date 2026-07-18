@@ -78,6 +78,48 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
+    // Lifetime VIP: one-time $15.99 payment sets vip_expires_at to year
+    // 2999 (isLifetimeVip in lib/game/vip.ts treats year >= 2900 as
+    // never-expires). Idempotency via credit_purchases upsert on
+    // stripe_session_id with a sentinel pack_key. credit_purchases.country_id
+    // is not null so we look up the buyer's country to satisfy the FK - the
+    // row is just a receipt, no credits granted.
+    if (session.mode === "payment" && session.metadata?.kind === "vip_lifetime") {
+      const userId = session.metadata.user_id;
+      if (userId) {
+        const admin = createAdminClient();
+        const { data: country } = await admin
+          .from("countries")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (country?.id) {
+          const { data: inserted } = await admin
+            .from("credit_purchases")
+            .upsert(
+              {
+                country_id: country.id,
+                stripe_session_id: session.id,
+                pack_key: "vip_lifetime",
+                credits_granted: 0,
+                amount_cents: session.amount_total ?? 0,
+              },
+              { onConflict: "stripe_session_id", ignoreDuplicates: true }
+            )
+            .select("id");
+
+          if (inserted && inserted.length > 0) {
+            await admin
+              .from("profiles")
+              .update({ vip_expires_at: "2999-12-31T00:00:00Z" })
+              .eq("id", userId);
+          }
+        }
+      }
+      return NextResponse.json({ received: true });
+    }
+
     const countryId = session.metadata?.country_id;
     const packKey = session.metadata?.pack_key;
     const credits = Number(session.metadata?.credits ?? 0);

@@ -1,8 +1,16 @@
 "use client";
 
 import { useTransition } from "react";
-import { createVipCheckoutSession } from "@/lib/actions/billing";
-import { isVipActive, VIP_MONTHLY_LABEL } from "@/lib/game/vip";
+import {
+  createVipCheckoutSession,
+  createVipLifetimeCheckoutSession,
+} from "@/lib/actions/billing";
+import {
+  isLifetimeVip,
+  isVipActive,
+  VIP_LIFETIME_LABEL,
+  VIP_MONTHLY_LABEL,
+} from "@/lib/game/vip";
 import { VipBadge } from "@/components/ui/VipBadge";
 
 const PERKS = [
@@ -17,9 +25,13 @@ const PERKS = [
 export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
   const [pending, startTransition] = useTransition();
   const active = isVipActive(vipExpiresAt);
+  const lifetime = isLifetimeVip(vipExpiresAt);
 
   function handleSubscribe() {
     startTransition(() => createVipCheckoutSession());
+  }
+  function handleBuyLifetime() {
+    startTransition(() => createVipLifetimeCheckoutSession());
   }
 
   return (
@@ -35,19 +47,41 @@ export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
         ))}
       </ul>
 
-      {active ? (
-        <p className="text-sm text-zinc-500">
-          Active until {new Date(vipExpiresAt!).toLocaleDateString()}.
-        </p>
+      {lifetime ? (
+        <p className="text-sm text-zinc-500">Lifetime VIP — never expires.</p>
+      ) : active ? (
+        <>
+          <p className="text-sm text-zinc-500">
+            Subscription active until {new Date(vipExpiresAt!).toLocaleDateString()}.
+          </p>
+          <button
+            type="button"
+            onClick={handleBuyLifetime}
+            disabled={pending}
+            className="rounded-xl border-2 border-[#FFD700] bg-transparent text-[#B8860B] dark:text-[#FFD700] font-medium py-2.5 disabled:opacity-50"
+          >
+            Upgrade to Lifetime — {VIP_LIFETIME_LABEL}
+          </button>
+        </>
       ) : (
-        <button
-          type="button"
-          onClick={handleSubscribe}
-          disabled={pending}
-          className="rounded-xl bg-[#FFD700] text-black font-medium py-2.5 disabled:opacity-50"
-        >
-          Subscribe — {VIP_MONTHLY_LABEL}
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={handleSubscribe}
+            disabled={pending}
+            className="rounded-xl bg-[#FFD700] text-black font-medium py-2.5 disabled:opacity-50"
+          >
+            Subscribe — {VIP_MONTHLY_LABEL}
+          </button>
+          <button
+            type="button"
+            onClick={handleBuyLifetime}
+            disabled={pending}
+            className="rounded-xl border-2 border-[#FFD700] bg-transparent text-[#B8860B] dark:text-[#FFD700] font-medium py-2.5 disabled:opacity-50"
+          >
+            Buy Lifetime — {VIP_LIFETIME_LABEL} (one-time)
+          </button>
+        </div>
       )}
     </div>
   );
