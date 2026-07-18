@@ -27,7 +27,7 @@ export function ChangeCountryPanel({
     const retryDate = new Date(cooldownUntil);
     return (
       <p className="text-sm text-zinc-500">
-        You changed your country recently — you can change it again after{" "}
+        You changed your country recently. You can change it again after{" "}
         {retryDate.toLocaleString()}.
       </p>
     );

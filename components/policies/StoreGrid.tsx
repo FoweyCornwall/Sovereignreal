@@ -62,7 +62,7 @@ export function StoreGrid({
     startTransition(async () => {
       const result = await refreshStore();
       if (!result.ok) {
-        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+        setMessage(`Not enough credits! You need ${result.shortfall} more.`);
         return;
       }
       const fresh = await getStore();
@@ -100,16 +100,16 @@ export function StoreGrid({
             s.slotPosition === slot.slotPosition ? { ...s, quantity: s.quantity - 1 } : s
           )
         );
-        setMessage(`${result.activePolicy.title} enacted — countdown started.`);
+        setMessage(`${result.activePolicy.title} enacted! Countdown started.`);
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_FUNDS") {
-        setMessage(`Not enough treasury — you need ${formatWithCommas(result.shortfall)} more.`);
+        setMessage(`Not enough treasury! You need ${formatWithCommas(result.shortfall)} more.`);
       } else if (result.reason === "QUEUE_FULL") {
-        setMessage("You already have 7 things in progress — wait for one to finish.");
+        setMessage("You already have 7 things in progress. Wait for one to finish!");
       } else if (result.reason === "SOLD_OUT") {
         setMessage("That slot just sold out.");
       } else if (result.reason === "STALE_SLOT") {
-        setMessage("The store just restocked — refresh to see what's available.");
+        setMessage("The store just restocked. Refresh to see what's available!");
       } else {
         setMessage("That policy is no longer available.");
       }

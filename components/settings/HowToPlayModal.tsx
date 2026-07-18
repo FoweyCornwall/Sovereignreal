@@ -6,23 +6,23 @@ import { replayOnboarding } from "@/lib/actions/onboarding";
 const SECTIONS: { title: string; body: string }[] = [
   {
     title: "The Core Loop",
-    body: "Buy policies from the Store using your Treasury. Each policy runs on a countdown, then boosts your sector scores when it enacts. Sector scores multiply into GDP per second, which regenerates Treasury (at half the GDP rate). Bigger GDP means bigger buys, means bigger sectors — the loop compounds.",
+    body: "Buy policies from the Store using your Treasury. Each policy runs on a countdown, then boosts your sector scores when it enacts. Sector scores multiply into GDP per second, which regenerates Treasury at half the GDP rate. Bigger GDP means bigger buys, means bigger sectors. The loop compounds fast!",
   },
   {
     title: "Ranks",
-    body: "Your rank tier is determined by your GDP. Bronze → Silver → Gold → Diamond → Master → Grandmaster → Legend → Mythic → Transcendent. Climbing takes hours of playing, days for the top tiers. Watch the Leaderboard to see where you stack against everyone else.",
+    body: "Your rank tier depends on your GDP. Bronze, Silver, Gold, Diamond, Master, Grandmaster, Legend, Mythic, Transcendent. Climbing takes hours, and days for the top tiers. Watch the Leaderboard to see where you stack up!",
   },
   {
     title: "Mutations",
-    body: "Every settle has a small chance of rolling a random mutation on one of your 10 sectors — Uncommon, Rare, Epic, Legendary, Mythic, Exotic, Eternal. Each mutation multiplies that sector's GDP contribution (2× up to 100×). Mutations are permanent and stack until a rarer one replaces it. Also buy Mutation Boosts from the Store's Mutations tab to increase the proc rate for a short window.",
+    body: "Every settle has a small chance of rolling a random mutation on one of your 10 sectors. Uncommon, Rare, Epic, Legendary, Mythic, Exotic, Eternal. Each mutation multiplies that sector's GDP contribution (2x up to 100x). Mutations are permanent and stack until a rarer one replaces it. You can also buy Mutation Boosts from the Store's Mutations tab to raise the proc rate for a short window.",
   },
   {
     title: "Battle (PvP)",
-    body: "Head to Battle to queue against another player or bot at your tier. Best-of-5, both sides pick sectors simultaneously per round — the sector with the higher score (including mutations) wins the round. Winner takes 15% of the loser's treasury. Rewards scale with your opponent's wealth.",
+    body: "Head to Battle to queue against another player or bot at your strength. Best of 5, both sides pick sectors simultaneously per round. The sector with the higher score (including mutations) wins the round. Winner takes 15 percent of the loser's treasury, and rewards scale with your opponent's wealth!",
   },
   {
     title: "Rebirth",
-    body: "Once you hit Diamond, you can Rebirth from Settings. Your GDP and sectors reset, but you keep a permanent +50% GDP bonus and +50% Treasury regen bonus per rebirth, stacking. This is the endgame loop: rebirths let you push past the natural climb wall.",
+    body: "Once you hit Diamond you can Rebirth from Settings. Your GDP and sectors reset, but every rebirth permanently doubles both your GDP and Treasury rates. Stack them forever. This is the real endgame!",
   },
 ];
 

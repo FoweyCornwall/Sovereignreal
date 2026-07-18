@@ -14,7 +14,7 @@ export function PrestigeBadge({ count }: { count: number }) {
         backgroundColor: "color-mix(in srgb, #f59e0b 15%, transparent)",
         border: "1px solid color-mix(in srgb, #f59e0b 45%, transparent)",
       }}
-      title={`Rebirth ${count} — +${gdpPct}% GDP/sec, +${treasuryPct}% treasury regen`}
+      title={`Rebirth ${count}. +${gdpPct}% GDP/sec, +${treasuryPct}% treasury regen`}
     >
       <span aria-hidden>★</span>
       {count}

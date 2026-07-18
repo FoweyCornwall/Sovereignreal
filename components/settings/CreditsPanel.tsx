@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { CREDIT_PACKS } from "@/lib/billing/creditPacks";
 import { createCheckoutSession } from "@/lib/actions/billing";
 import { formatWithCommas } from "@/lib/game/format";
+import { RestorePurchasesButton } from "@/components/settings/RestorePurchasesButton";
 
 export function CreditsPanel({ credits }: { credits: number }) {
   const [pending, startTransition] = useTransition();
@@ -31,6 +32,7 @@ export function CreditsPanel({ credits }: { credits: number }) {
           </button>
         ))}
       </div>
+      <RestorePurchasesButton />
     </div>
   );
 }

@@ -56,7 +56,7 @@ export function RebirthPanel({
         router.refresh();
       } else if (result.reason === "NOT_ELIGIBLE") {
         setError(
-          `You need ${formatWithCommas(result.requiredGdp)} GDP to rebirth — you have ${formatWithCommas(result.currentGdp)}.`
+          `You need ${formatWithCommas(result.requiredGdp)} GDP to rebirth. You have ${formatWithCommas(result.currentGdp)}.`
         );
       } else {
         setError("Something went wrong. Try again.");

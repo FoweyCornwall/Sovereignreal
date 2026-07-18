@@ -198,7 +198,7 @@ export function MatchView({
           <>
             <p className="text-sm text-red-500 text-center">{error}</p>
             <p className="text-xs text-zinc-500 text-center">
-              Still retrying in the background — this usually means the site is running ahead of
+              Still retrying in the background. This usually means the site is running ahead of
               the database migrations. If it doesn&apos;t recover, make sure the latest migration
               has been run.
             </p>
@@ -272,7 +272,7 @@ export function MatchView({
         <p className="text-sm text-zinc-500 text-center">
           vs {live.opponentIdentity.name}
           {live.forfeited &&
-            (won ? " — they left the match." : " — you left the match.")}
+            (won ? ". They left the match." : ". You left the match.")}
         </p>
 
         <button
@@ -290,7 +290,7 @@ export function MatchView({
   if (isRevealing || !caughtUp) {
     statusText = "Revealing round…";
   } else if (live.myPendingSector && !live.opponentHasPicked) {
-    statusText = "Locked in — waiting for opponent…";
+    statusText = "Locked in! Waiting for opponent…";
   } else if (live.myPendingSector && live.opponentHasPicked) {
     statusText = "Resolving round…";
   } else if (pending) {

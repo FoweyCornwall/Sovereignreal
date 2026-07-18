@@ -33,7 +33,7 @@ export function MatchmakingPanel({ onMatched }: { onMatched: (matchId: string) =
       setPhase("error");
       setErrorMessage(
         result.reason === "NO_OPPONENT_AVAILABLE"
-          ? "No opponents available right now — try again shortly."
+          ? "No opponents available right now. Try again shortly!"
           : "Something went wrong finding a match."
       );
       return;
@@ -71,7 +71,7 @@ export function MatchmakingPanel({ onMatched }: { onMatched: (matchId: string) =
             as a loss.
           </p>
           <p className="text-xs text-zinc-500 text-center">
-            Win → take 15% of your opponent&apos;s treasury. Draw → nothing changes hands.
+            Win and you take 15% of your opponent&apos;s treasury! Draws leave everything untouched.
           </p>
           <button
             type="button"

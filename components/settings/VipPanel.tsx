@@ -12,6 +12,7 @@ import {
   VIP_MONTHLY_LABEL,
 } from "@/lib/game/vip";
 import { VipBadge } from "@/components/ui/VipBadge";
+import { RestorePurchasesButton } from "@/components/settings/RestorePurchasesButton";
 
 const PERKS = [
   "Daily reward +15 credits (instead of +5)",
@@ -48,7 +49,7 @@ export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
       </ul>
 
       {lifetime ? (
-        <p className="text-sm text-zinc-500">Lifetime VIP — never expires.</p>
+        <p className="text-sm text-zinc-500">Lifetime VIP. Never expires!</p>
       ) : active ? (
         <>
           <p className="text-sm text-zinc-500">
@@ -60,7 +61,7 @@ export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
             disabled={pending}
             className="rounded-xl border-2 border-[#FFD700] bg-transparent text-[#B8860B] dark:text-[#FFD700] font-medium py-2.5 disabled:opacity-50"
           >
-            Upgrade to Lifetime — {VIP_LIFETIME_LABEL}
+            Upgrade to Lifetime, {VIP_LIFETIME_LABEL}
           </button>
         </>
       ) : (
@@ -71,7 +72,7 @@ export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
             disabled={pending}
             className="rounded-xl bg-[#FFD700] text-black font-medium py-2.5 disabled:opacity-50"
           >
-            Subscribe — {VIP_MONTHLY_LABEL}
+            Subscribe, {VIP_MONTHLY_LABEL}
           </button>
           <button
             type="button"
@@ -79,10 +80,11 @@ export function VipPanel({ vipExpiresAt }: { vipExpiresAt: string | null }) {
             disabled={pending}
             className="rounded-xl border-2 border-[#FFD700] bg-transparent text-[#B8860B] dark:text-[#FFD700] font-medium py-2.5 disabled:opacity-50"
           >
-            Buy Lifetime — {VIP_LIFETIME_LABEL} (one-time)
+            Buy Lifetime, {VIP_LIFETIME_LABEL} (one-time)
           </button>
         </div>
       )}
+      <RestorePurchasesButton />
     </div>
   );
 }

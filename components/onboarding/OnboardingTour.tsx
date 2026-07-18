@@ -3,38 +3,46 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { markOnboardingSeen } from "@/lib/actions/onboarding";
+import {
+  BarChart3,
+  Crown,
+  Sparkles,
+  Store,
+  Swords,
+  type LucideIcon,
+} from "lucide-react";
 
 interface Slide {
   title: string;
   body: string;
-  emoji: string;
+  Icon: LucideIcon;
 }
 
 const SLIDES: Slide[] = [
   {
-    emoji: "👑",
-    title: "Welcome to Sovereign",
-    body: "Build a nation, grow GDP, battle rivals, and rebirth for permanent boosts. It's an endless game — pick it up any time; your policies keep running while you're away.",
+    Icon: Crown,
+    title: "Welcome to Sovereign!",
+    body: "Build a nation. Grow GDP. Battle rivals. Rebirth for permanent boosts. Your policies keep running while you're away, so play whenever!",
   },
   {
-    emoji: "📊",
+    Icon: BarChart3,
     title: "Your Dashboard",
-    body: "GDP and Treasury tick up every second. Treasury regens at exactly half your GDP rate — so growing GDP grows everything. Watch the sector cards, they drive it all.",
+    body: "Your GDP and Treasury tick up every second. Treasury regenerates at half your GDP rate, so growing GDP grows everything. The sector cards below drive it all!",
   },
   {
-    emoji: "🛒",
-    title: "Store → Sectors → GDP",
-    body: "Head to the Store to buy policies. Each policy has a countdown, then enacts and boosts one or more sectors. Higher sector scores = higher GDP per second. Sectors are uncapped — grow them forever.",
+    Icon: Store,
+    title: "Store, Sectors, GDP",
+    body: "Head to the Store to buy policies. Each policy runs on a countdown, then gives your sectors a boost. Higher sector scores mean higher GDP per second, and sectors are uncapped. Grow them forever!",
   },
   {
-    emoji: "⚔️",
+    Icon: Swords,
     title: "Battle",
-    body: "Hit Battle to challenge a rival at your strength. Best-of-5 rounds, higher sector score wins the round. Win → take 15% of their treasury. Draw → nothing changes hands.",
+    body: "Ready for a fight? Head to Battle and take on a rival at your strength. Best of five rounds, the higher sector score wins each round. Win and you take 15 percent of their treasury!",
   },
   {
-    emoji: "🌟",
+    Icon: Sparkles,
     title: "Rebirth",
-    body: "At Diamond rank you unlock Rebirth in Settings. Your GDP and sectors reset — but every rebirth permanently doubles your GDP + Treasury rates. Stackable forever. This is the endgame loop.",
+    body: "Once you reach Diamond, you unlock Rebirth in Settings. Your GDP and sectors reset, but every rebirth permanently doubles both your GDP and Treasury rates. Stack them forever. This is the real endgame!",
   },
 ];
 
@@ -104,9 +112,9 @@ export function OnboardingTour({ onDismiss }: { onDismiss?: () => void }) {
         </div>
 
         <div className="flex flex-col items-center gap-3 py-2">
-          <span className="text-5xl" aria-hidden>
-            {slide.emoji}
-          </span>
+          <div className="flex items-center justify-center h-14 w-14 rounded-full bg-brand-500/10 text-brand-500 dark:text-brand-500">
+            <slide.Icon size={28} strokeWidth={2} aria-hidden />
+          </div>
           <h2 className="text-xl font-semibold text-center">{slide.title}</h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center leading-relaxed">
             {slide.body}

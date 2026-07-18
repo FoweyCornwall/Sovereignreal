@@ -8,7 +8,7 @@ export function GdpChart({ points }: { points: GdpHistoryPoint[] }) {
   if (points.length < 2) {
     return (
       <p className="text-sm text-zinc-500">
-        Not enough history yet — enact and let a few policies complete to see
+        Not enough history yet. Enact and let a few policies complete to see
         your GDP growth chart.
       </p>
     );

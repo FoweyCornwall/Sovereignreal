@@ -28,7 +28,7 @@ export function CosmeticsShop({
         setMessage("Pack purchased!");
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_CREDITS") {
-        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+        setMessage(`Not enough credits! You need ${result.shortfall} more.`);
       } else if (result.reason === "ALREADY_OWNED") {
         setMessage("You already own that pack.");
       } else {

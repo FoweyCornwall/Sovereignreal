@@ -33,7 +33,7 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
       if (result.ok) {
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_CREDITS") {
-        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+        setMessage(`Not enough credits! You need ${result.shortfall} more.`);
       } else if (result.reason === "ALREADY_DUE") {
         setMessage("That policy is already finishing up.");
       } else {
@@ -50,7 +50,7 @@ export function ActiveQueueView({ items, credits }: { items: QueueItem[]; credit
         setMessage(`Skipped ${result.skipped} ${result.skipped === 1 ? "policy" : "policies"}.`);
         router.refresh();
       } else if (result.reason === "INSUFFICIENT_CREDITS") {
-        setMessage(`Not enough credits — you need ${result.shortfall} more.`);
+        setMessage(`Not enough credits! You need ${result.shortfall} more.`);
       } else if (result.reason === "NOTHING_TO_SKIP") {
         setMessage("No policies to skip.");
       } else {

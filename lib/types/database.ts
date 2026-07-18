@@ -325,6 +325,30 @@ export interface Database {
         Update: { id?: number; last_drift_at?: string };
         Relationships: [];
       };
+      stripe_webhook_events: {
+        Row: {
+          id: string;
+          stripe_event_id: string;
+          event_type: string;
+          received_at: string;
+          status: string;
+          error_text: string | null;
+          session_id: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          stripe_event_id: string;
+          event_type: string;
+          received_at?: string;
+          status: string;
+          error_text?: string | null;
+          session_id?: string | null;
+          user_id?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["stripe_webhook_events"]["Insert"]>;
+        Relationships: [];
+      };
       cosmetic_packs: {
         Row: {
           key: string;
