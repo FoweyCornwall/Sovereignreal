@@ -258,6 +258,23 @@ async function main() {
     }
   }
 
+  // Top-30-by-GDP get 5-15 random rebirths (rest keep the weighted 0-6
+  // pickRebirthCount() assigned at insert time). Mirrors migration 0035.
+  const { data: topBotRows } = await supabase
+    .from("countries")
+    .select("id")
+    .eq("is_bot", true)
+    .eq("show_on_leaderboard", true)
+    .order("gdp", { ascending: false })
+    .limit(30);
+
+  if (topBotRows) {
+    for (const row of topBotRows) {
+      const prestige = 5 + Math.floor(Math.random() * 11);
+      await supabase.from("countries").update({ prestige_count: prestige }).eq("id", row.id);
+    }
+  }
+
   console.log(
     `Seeded ${count ?? bots.length} bot countries (${VISIBLE_BOT_COUNT} visible, ${HIDDEN_BOT_COUNT} hidden). Wins + rebirths distributed.`
   );
