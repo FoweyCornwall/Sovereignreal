@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { replayOnboarding } from "@/lib/actions/onboarding";
 
 const SECTIONS: { title: string; body: string }[] = [
   {
@@ -84,8 +85,14 @@ export function HowToPlayModal({ open, onClose }: { open: boolean; onClose: () =
 
 export function HowToPlayButton() {
   const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function handleReplayTour() {
+    startTransition(() => replayOnboarding());
+  }
+
   return (
-    <>
+    <div className="flex flex-wrap gap-2">
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -93,7 +100,15 @@ export function HowToPlayButton() {
       >
         How to Play
       </button>
+      <button
+        type="button"
+        onClick={handleReplayTour}
+        disabled={pending}
+        className="text-sm rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 py-2 px-4 w-fit disabled:opacity-50"
+      >
+        Replay Tutorial
+      </button>
       <HowToPlayModal open={open} onClose={() => setOpen(false)} />
-    </>
+    </div>
   );
 }

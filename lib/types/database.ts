@@ -25,6 +25,7 @@ export interface Database {
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
           last_free_restock_at: string | null;
+          has_seen_onboarding: boolean;
           created_at: string;
         };
         Insert: {
@@ -37,6 +38,7 @@ export interface Database {
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           last_free_restock_at?: string | null;
+          has_seen_onboarding?: boolean;
           created_at?: string;
         };
         Update: {
@@ -49,6 +51,7 @@ export interface Database {
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           last_free_restock_at?: string | null;
+          has_seen_onboarding?: boolean;
           created_at?: string;
         };
         Relationships: [];
