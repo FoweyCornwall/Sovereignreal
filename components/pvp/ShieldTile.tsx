@@ -70,7 +70,7 @@ export function ShieldTile({
     >
       <span className="text-[10px] font-medium truncate">{SECTOR_LABELS[sector]}</span>
       <span className="text-xs tabular-nums font-semibold">
-        {myScore?.toFixed(1)} <span className="text-zinc-400">vs</span> {opponentScore?.toFixed(1)}
+        {myScore !== null ? Math.floor(myScore) : null} <span className="text-zinc-400">vs</span> {opponentScore !== null ? Math.floor(opponentScore) : null}
       </span>
       <span className={`text-[10px] font-medium ${labelClass}`}>{labelText}</span>
     </div>

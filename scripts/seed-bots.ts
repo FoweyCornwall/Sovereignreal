@@ -22,8 +22,21 @@
 import { createAdminClient } from "../lib/supabase/admin";
 import { REAL_WORLD_COUNTRIES } from "../lib/game/countries";
 
-const VISIBLE_BOT_COUNT = 320;
-const HIDDEN_BOT_COUNT = 400;
+const VISIBLE_BOT_COUNT = 500;
+const HIDDEN_BOT_COUNT = 600;
+
+// Weighted rebirth distribution for leaderboard-visible bots. Uncorrelated
+// with rank position - a Grandmaster bot can have 0 rebirths and a Diamond
+// bot can have 5. Multiple bots share the same rebirth count.
+function pickRebirthCount(): number {
+  const r = Math.random();
+  if (r < 0.35) return 0;
+  if (r < 0.60) return 1;
+  if (r < 0.80) return 2;
+  if (r < 0.92) return 3;
+  if (r < 0.98) return 4;
+  return 5 + Math.floor(Math.random() * 2);
+}
 
 // Diamond floor, widened Grandmaster max (3e14, still >3x short of the 1e15
 // Transcendent threshold) so the single highest bot never reaches the very
@@ -194,6 +207,9 @@ function buildBot(
     treasury: 0,
     treasury_regen_per_sec: 0,
     is_vip_bot: Math.random() < bucket.vipChance,
+    // Leaderboard-visible bots get a random rebirth badge. Hidden bots
+    // stay at 0 since players never see them.
+    prestige_count: showOnLeaderboard ? pickRebirthCount() : 0,
   };
 }
 
@@ -221,8 +237,29 @@ async function main() {
     process.exit(1);
   }
 
+  // Assign visible bots' wins: top winner 78, exponential drop with
+  // noise, duplicates allowed, uncorrelated with rank position. Same
+  // formula as migration 0034's one-shot but applied per-row here so
+  // future reseeds keep the leaderboard populated without needing SQL.
+  const { data: visibleBotRows } = await supabase
+    .from("countries")
+    .select("id")
+    .eq("is_bot", true)
+    .eq("show_on_leaderboard", true);
+
+  if (visibleBotRows && visibleBotRows.length > 0) {
+    const shuffled = [...visibleBotRows].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < shuffled.length; i++) {
+      const wins = Math.max(
+        0,
+        Math.floor(78 * Math.exp(-i / 22) + (Math.random() - 0.5) * 6)
+      );
+      await supabase.from("countries").update({ wins }).eq("id", shuffled[i].id);
+    }
+  }
+
   console.log(
-    `Seeded ${count ?? bots.length} bot countries (${VISIBLE_BOT_COUNT} visible, ${HIDDEN_BOT_COUNT} hidden).`
+    `Seeded ${count ?? bots.length} bot countries (${VISIBLE_BOT_COUNT} visible, ${HIDDEN_BOT_COUNT} hidden). Wins + rebirths distributed.`
   );
 }
 

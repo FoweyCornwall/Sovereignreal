@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { formatWithCommas } from "@/lib/game/format";
 import { getRankTier } from "@/lib/game/rankTiers";
 import { CountryFlag } from "@/components/ui/CountryFlag";
@@ -6,7 +9,17 @@ import { PrestigeBadge } from "@/components/dashboard/PrestigeBadge";
 import { VipBadge } from "@/components/ui/VipBadge";
 import type { LeaderboardEntry } from "@/lib/types/game";
 
-function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
+type Tab = "gdp" | "wins";
+
+function Row({
+  entry,
+  isMe,
+  mode,
+}: {
+  entry: LeaderboardEntry;
+  isMe: boolean;
+  mode: Tab;
+}) {
   const tier = getRankTier(entry.gdp);
   const hasGradient = Boolean(tier.gradientClass);
 
@@ -40,36 +53,70 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
         <RankIcon gdp={entry.gdp} size={14} strokeWidth={2.25} />
         {tier.name}
       </span>
-      <span className="text-sm tabular-nums shrink-0">{formatWithCommas(entry.gdp)}</span>
+      {mode === "gdp" ? (
+        <span className="text-sm tabular-nums shrink-0">{formatWithCommas(entry.gdp)}</span>
+      ) : (
+        <span className="text-sm tabular-nums shrink-0 font-semibold">
+          {entry.wins}
+          <span className="text-xs text-zinc-500 font-normal"> wins</span>
+        </span>
+      )}
     </div>
   );
 }
 
 export function LeaderboardTable({
   entries,
+  entriesByWins,
   myCountryId,
   myCountry,
 }: {
   entries: LeaderboardEntry[];
+  entriesByWins: LeaderboardEntry[];
   myCountryId: string;
   myCountry: LeaderboardEntry;
 }) {
-  const myEntry = entries.find((e) => e.countryId === myCountryId);
+  const [tab, setTab] = useState<Tab>("gdp");
+  const visible = tab === "gdp" ? entries : entriesByWins;
+
+  const myEntry = visible.find((e) => e.countryId === myCountryId);
   const isPinnedOutside = !myEntry;
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Leaderboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Leaderboard</h1>
+      </div>
+
+      <div className="flex rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 p-1 w-fit">
+        {(["gdp", "wins"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={`rounded-lg px-4 py-1.5 text-sm font-medium ${
+              tab === t ? "bg-brand-500 text-black" : "text-zinc-500"
+            }`}
+          >
+            {t === "gdp" ? "GDP" : "Battle Wins"}
+          </button>
+        ))}
+      </div>
 
       <div className="rounded-xl border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-900 shadow-sm divide-y divide-zinc-100 dark:divide-zinc-900 overflow-hidden">
-        {entries.map((entry) => (
-          <Row key={entry.countryId} entry={entry} isMe={entry.countryId === myCountryId} />
+        {visible.map((entry) => (
+          <Row
+            key={entry.countryId}
+            entry={entry}
+            isMe={entry.countryId === myCountryId}
+            mode={tab}
+          />
         ))}
       </div>
 
       {isPinnedOutside && (
         <div className="sticky bottom-16 sm:bottom-4 rounded-xl border-2 border-brand-500 bg-white dark:bg-black overflow-hidden">
-          <Row entry={myCountry} isMe />
+          <Row entry={myCountry} isMe mode={tab} />
         </div>
       )}
     </div>

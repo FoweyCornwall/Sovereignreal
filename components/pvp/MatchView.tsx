@@ -12,8 +12,11 @@ import { CountryFlag } from "@/components/ui/CountryFlag";
 import type { Sector } from "@/lib/game/constants";
 import { formatWithCommas } from "@/lib/game/format";
 
-const POLL_INTERVAL_MS = 1200;
-const TICK_MS = 250;
+// Bumped from 1200/250ms to 1800/500ms - the countdown reads in whole
+// seconds anyway, so the finer tick was rerendering the whole battle
+// tree twice as often for no visible gain.
+const POLL_INTERVAL_MS = 1800;
+const TICK_MS = 500;
 const REVEAL_HOLD_MS = 3000;
 const FINAL_HOLD_MS = 2000;
 

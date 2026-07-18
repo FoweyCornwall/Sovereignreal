@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { findMatch, cancelMatchSearch } from "@/lib/actions/pvpMatch";
 
-const POLL_INTERVAL_MS = 1200;
+// Bumped 1200 -> 1800ms to reduce server churn while queueing; still
+// feels instantly responsive since we don't wait a full round.
+const POLL_INTERVAL_MS = 1800;
 
 export function MatchmakingPanel({ onMatched }: { onMatched: (matchId: string) => void }) {
   const [phase, setPhase] = useState<"idle" | "searching" | "error">("idle");

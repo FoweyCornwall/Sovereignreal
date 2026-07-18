@@ -89,6 +89,7 @@ export interface LeaderboardEntry {
   flagStyle: { bg: string; pattern?: string } | null;
   countryCode: string | null;
   gdp: number;
+  wins: number;
   rank: number;
   isVip: boolean;
   prestigeCount: number;

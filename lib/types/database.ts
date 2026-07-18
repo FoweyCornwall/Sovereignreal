@@ -77,6 +77,7 @@ export interface Database {
           prestige_gdp_bonus: number;
           prestige_treasury_bonus: number;
           last_ascended_at: string | null;
+          wins: number;
         };
         Insert: {
           id?: string;
@@ -101,6 +102,7 @@ export interface Database {
           prestige_gdp_bonus?: number;
           prestige_treasury_bonus?: number;
           last_ascended_at?: string | null;
+          wins?: number;
         };
         Update: Partial<Database["public"]["Tables"]["countries"]["Insert"]>;
         Relationships: [];
@@ -519,9 +521,26 @@ export interface Database {
           flag_style: Json | null;
           country_code: string | null;
           gdp: number;
+          wins: number;
+          prestige_count: number;
           rank: number;
           is_vip: boolean;
+        }[];
+      };
+      get_leaderboard_wins: {
+        Args: { p_limit?: number };
+        Returns: {
+          country_id: string;
+          name: string;
+          username: string | null;
+          flag_emoji: string | null;
+          flag_style: Json | null;
+          country_code: string | null;
+          gdp: number;
+          wins: number;
           prestige_count: number;
+          rank: number;
+          is_vip: boolean;
         }[];
       };
       ascend_country: {
